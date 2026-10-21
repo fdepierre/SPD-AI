@@ -6,7 +6,9 @@ The documents are written in French for now.
 
 ## Status
 
-These are working documents, not scientific papers. Each important claim is labelled as a documented fact, an actor's statement, a hypothesis, a recommendation or an open question. Some figures and claims have not yet been checked against their primary sources. They're marked as such, and the main document lists them in its appendix H.
+These are working documents, generated with an AI, not scientific papers. Each important claim is labelled as a documented fact, an actor's statement, a hypothesis, a recommendation or an open question. Some figures and claims have not yet been checked against their primary sources. They're marked as such, and the main document lists them in its appendix H.
+
+Consider these contents as a context of knowledge for your own analysis, not proofs validated.
 
 ## Contributing
 
@@ -19,3 +21,5 @@ Text licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) (s
 ## Author
 
 Franck Depierre
+AI/Perplexity.ai
+
