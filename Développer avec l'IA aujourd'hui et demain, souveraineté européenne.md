@@ -1,496 +1,362 @@
 # Développer avec l'IA : aujourd'hui et demain, avec un objectif de souveraineté européenne
 
-Version de travail du 21 octobre 2026. Révision de cohérence avec SPD-AI, version 1.0 d'octobre 2026 ; dernière révision visible du dépôt : a261f2e. Les références commerciales et chiffrages hérités du 19 octobre ne sont pas tous revérifiés à leur source primaire dans cette révision.
+Date de génération de cette version : 21 octobre 2026
+Statut : Brouillon pour étude, données commerciales et calculs non vérifiés pour l'instant
 
-## 1. Objet et périmètre
+Ce document étudie une chaîne de développement logiciel assisté par IA qui privilégie, à terme, des services européens et des modèles open weight. Il couvre deux situations : créer un produit neuf et moderniser un logiciel important, avec leurs exigences de sécurité, de preuve, d'exploitation et de conformité.
 
-Ce document décrit comment organiser le développement logiciel assisté par IA (assistants de code, agents, revue, tests, documentation) avec un objectif à moyen terme : utiliser principalement des services européens et des modèles open weight, afin de ne pas dépendre d'entreprises soumises au droit américain, en particulier au CLOUD Act et à la section 702 du FISA.
+Les montants servent à cadrer une décision, pas à remplacer un devis. Les références réglementaires doivent être appliquées au rôle de l'entreprise, au produit et au service effectivement retenus ; ce document ne remplace pas un avis juridique.
 
-Il distingue :
-- les faits vérifiables (sources citées) ;
-- les hypothèses ;
-- les recommandations, avec leurs limites.
+## Objet, périmètre et convention de lecture
 
-Il ne remplace pas un avis juridique. Les points contractuels (actionnariat du fournisseur, sous-traitants, clauses de réquisition) doivent être vérifiés fournisseur par fournisseur.
+L'objectif proposé est de réduire les dépendances critiques et de conserver la capacité de comprendre, vérifier, exploiter et remplacer les composants de la chaîne. La localisation en Europe, l'ouverture des poids, la sécurité et la conformité sont des dimensions distinctes ; aucune ne suffit, seule, à établir toutes les autres.
 
-### Articulation avec SPD-AI et convention de lecture
+Le texte distingue :
 
-Ce guide est le complément opérationnel de [« Le futur du Product Management à l'ère des agents IA », publié dans SPD-AI](https://github.com/fdepierre/SPD-AI/blob/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md). SPD-AI traite principalement de la valeur, des décisions, de la transmission, des permissions et des preuves ; ce guide décline ces questions pour une chaîne de développement à maîtrise européenne, son hébergement, ses coûts et ses contrôles.
+- **Fait documenté** : information établie par la référence citée, dans son périmètre.
+- **Déclaration d'un acteur** : engagement, caractéristique ou résultat annoncé par un fournisseur, sans validation indépendante présumée.
+- **Hypothèse** : scénario de coût, de charge ou d'évolution à tester.
+- **Recommandation** : choix de méthode proposé pour le projet.
+- **Question ouverte** : point qui nécessite une mesure, une preuve ou une clarification contractuelle.
 
-La lecture distingue cinq statuts : fait documenté, déclaration d'un acteur, hypothèse, recommandation et question ouverte, conformément à la méthode présentée dans [SPD-AI, sections 1.2 et 1.3](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md). Une citation ne signifie pas qu'un résultat a été validé indépendamment ; un chiffrage de sensibilité n'est pas une prévision.
+Deux distinctions s'appliquent à tout le guide. Développer avec l'IA n'est pas nécessairement fournir un système ou un modèle d'IA ; maîtriser l'hébergement ne démontre pas le fait que logiciel est correct.
 
-Les tableaux d'architecture et de gouvernance sont des recommandations, sauf mention contraire. Les prix, licences et calendriers hérités sont des informations à revalider avant contractualisation ; l'annexe « Réserves et vérifications avant publication » identifie les points qui ne doivent pas être présentés comme établis.
+## Souveraineté juridique et maîtrise de la chaîne
 
-Deux distinctions organisent désormais le guide : développer avec l'IA n'est pas développer un produit contenant de l'IA ; maîtriser l'hébergement n'est pas démontrer la correction du logiciel. Elles prolongent les distinctions de [SPD-AI, sections 1.1, 5.1 et 7.3](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md).
+### CLOUD Act : la localisation et la nationalité ne suffisent pas
 
-## 2. Le problème juridique en une page
+Le CLOUD Act permet d'exiger d'un fournisseur soumis à la juridiction américaine des données sous sa possession ou son contrôle, indépendamment de leur lieu de stockage ; le Department of Justice précise que cette juridiction n'est pas limitée aux sociétés américaines et que le contrôle au sein d'un groupe dépend des faits ([DOJ, FAQ 24 et 25](https://www.justice.gov/criminal/media/999616/dl?inline)). Un fournisseur européen ou une région européenne ne constitue donc pas, à lui seul, une garantie d'absence d'exposition.
 
-### Ce que dit le CLOUD Act
+Recommandation : examiner l'entité contractante, le contrôle du groupe, les sous-traitants, les accès techniques, les lieux d'administration et de support, ainsi que les procédures de réquisition. La promesse à rechercher est une maîtrise documentée et vérifiable, pas une formule générale d'« immunité ».
 
-Le CLOUD Act de 2018 permet aux autorités américaines d'exiger d'un fournisseur soumis à leur juridiction les données qu'il « possède, détient ou contrôle », même si elles sont stockées hors des États-Unis. Le critère est le rattachement du fournisseur, pas l'emplacement de la donnée ([donneespersonnelles.fr](https://www.donneespersonnelles.fr/cloud-souverain)).
+Pour un assistant de code, l'analyse de risques proposée inclut les dépôts et extraits envoyés, les prompts, les fichiers ouverts, les sorties de compilation, les traces d'agents, les secrets accidentels, la télémétrie et les index sémantiques. Une inférence autorisée ne suffit pas si les autres composants créent des flux non autorisés.
 
-Conséquence directe : un hébergement « en région Europe » chez un fournisseur américain, ou chez une filiale européenne d'un groupe américain, ne supprime pas le risque.
+### SecNumCloud : une qualification précise, pas celle de tout un fournisseur
 
-### Ce que cela signifie pour le code
+SecNumCloud v3.2 fixe notamment des exigences d'établissement dans l'UE, de contrôle capitalistique, de maîtrise technique des tiers et de localisation ; le § 19.6.b porte sur le capital et les droits de vote, directement ou indirectement, avec des limites de 24 % individuellement et 39 % collectivement pour les entités tierces définies par le référentiel ([ANSSI, § 19.6](https://cyber.gouv.fr/documents/388/secnumcloud-referentiel-exigences-v3.2.pdf)). Ces pourcentages ne remplacent pas les autres conditions, notamment celles relatives au veto, aux organes de direction, aux accès des tiers et à l'autonomie d'exploitation.
 
-Pour un assistant de code, les données exposées ne sont pas seulement les dépôts. Elles comprennent :
-- les extraits de code envoyés dans chaque requête (prompts, contexte, fichiers ouverts) ;
-- les journaux d'exécution des agents, sorties de compilation et de tests ;
-- les secrets accidentellement présents dans le contexte (clés, chaînes de connexion) ;
-- la télémétrie des IDE et des extensions ;
-- les index sémantiques (embeddings) du code, souvent stockés chez l'éditeur de l'outil.
+Le stockage, le traitement, les données techniques, l'administration et la supervision respectent les conditions de localisation UE ; certaines opérations de support hors UE restent possibles sous les conditions du § 19.2.e ([ANSSI, § 19.1 et 19.2](https://cyber.gouv.fr/documents/388/secnumcloud-referentiel-exigences-v3.2.pdf)). Il faut donc vérifier le service et ses modalités, plutôt qu'affirmer qu'aucune intervention hors UE n'est possible.
 
-Un modèle hébergé en Europe ne suffit donc pas si l'IDE, l'agent ou l'indexation passent par un service américain.
+Le référentiel précise aussi ses limites de protection technique contre l'accès du prestataire aux données ; des moyens complémentaires de chiffrement maîtrisés par le client peuvent être nécessaires, et la qualification ne se substitue pas aux autres obligations applicables ([ANSSI, § 3.3.2](https://cyber.gouv.fr/documents/388/secnumcloud-referentiel-exigences-v3.2.pdf)). Recommandation : distinguer le chiffrement au repos, les accès d'administration et les données effectivement manipulées pendant l'inférence.
 
-### SecNumCloud comme référence la plus exigeante
+La décision ANSSI n° 3389 qualifie « IAAS - SECURE TEMPLE », notamment le baremetal, jusqu'au 30 mai 2028 ; elle ne nomme ni H100 ni LLMaaS et exclut de ce périmètre les services managés additionnels ([décision du 31 juillet 2026](https://messervices.cyber.gouv.fr/visas/2026_3389_np.pdf)). Pour une offre GPU ou d'inférence, obtenir par écrit son rattachement exact au périmètre qualifié.
 
-Les analyses citées présentent SecNumCloud comme un référentiel particulièrement exigeant sur l'exposition aux lois extraterritoriales, notamment par des conditions d'établissement et de contrôle capitalistique ([donneespersonnelles.fr](https://www.donneespersonnelles.fr/cloud-souverain)). Les seuils de 24 % individuellement et 39 % collectivement pour les participations non européennes sont rapportés par une source secondaire ; les conditions exactes et leur application au fournisseur choisi doivent être vérifiées sur le référentiel officiel avant contractualisation ([Oodrive](https://www.oodrive.com/fr/blog/secnumcloud/infrastructure/5-raisons-choisir-environnement-qualifie-secnumcloud/)).
+Recommandation : demander une qualification lorsque le risque, le contrat, le client ou un texte applicable la justifie. Ne pas déduire que tout code OT exige automatiquement SecNumCloud, ni qu'un service installé sur une infrastructure qualifiée devient lui-même qualifié.
 
-Deux limites à garder en tête :
-- ces critères réduisent fortement l'exposition au CLOUD Act et au FISA 702, sans garantie absolue ([Cyber Networks](https://cyber-networks.fr/cybersecurite/secnumcloud-qualification-anssi-guide/)) ;
-- une offre reposant sur une pile logicielle américaine soulève des questions spécifiques, citées notamment pour Bleu et S3NS ([Nexthop](https://www.nexthop.fr/secnumcloud/)).
+## Modèles open weight : contrôle des poids et conditions d'usage
 
-Recommandation : réserver l'exigence SecNumCloud aux projets sensibles (OT, défense, données clients critiques), et accepter un hébergeur européen non qualifié pour le reste, avec une vérification contractuelle.
+### Ce que l'ouverture permet, et ce qu'elle ne démontre pas
 
-## 3. Open weight ne veut pas dire souverain
+Disposer des poids et d'un moteur d'inférence déployable permet d'envisager une exécution sur une infrastructure choisie ; les fiches Qwen et Z.ai décrivent plusieurs moyens de déploiement, sans démontrer la sécurité d'une installation particulière ([Qwen](https://huggingface.co/Qwen/Qwen3.8-27B), [Z.ai](https://huggingface.co/zai-org/GLM-5.3)). Recommandation : contrôler les dépendances, téléchargements, télémétries et sorties réseau avant de conclure qu'aucune requête ne quitte le périmètre.
 
-C'est le point le plus souvent mal compris.
+La grille de décision proposée sépare quatre questions :
 
-| Question | Ce qui protège | Ce qui ne protège pas |
+| Question | Contrôle à rechercher | Ce qui ne suffit pas |
 |---|---|---|
-| Qui peut accéder à mes données ? | L'opérateur de l'inférence (vous ou un hébergeur européen) | La nationalité du créateur du modèle |
-| Le modèle peut-il être retiré ? | Avoir les poids en local, avec une licence permissive | Une API, même européenne |
-| Puis-je l'utiliser commercialement ? | Apache 2.0, MIT | Licences « modifiées » à seuils |
-| Le modèle est-il fiable ? | Vos propres tests | Le pays d'origine, les classements publics |
+| Qui peut accéder au code et aux requêtes ? | Opérateur, droits, flux, sous-traitants et traces | Origine géographique du laboratoire |
+| Le modèle peut-il être remplacé ou conservé ? | Poids, licence, moteur, versions et procédure de sortie | Accès à une API |
+| L'usage commercial est-il autorisé ? | Licence exacte et contrat couvrant l'usage | Mention « open weight » |
+| Le modèle est-il adapté au produit ? | Résultats sur les tâches, erreurs et coût complet | Classement public ou taille du modèle |
 
-### Modèle chinois auto-hébergé ou API chinoise
+### Licences vérifiées sur les versions identifiées
 
-Exécuter les poids d'un modèle Qwen, GLM ou DeepSeek sur une infrastructure maîtrisée ne nécessite pas, en soi, d'envoyer les requêtes au laboratoire d'origine ; le contrôle dépend aussi du moteur d'inférence, des bibliothèques, de la télémétrie et des accès réseau, pas seulement de l'origine des poids, selon l'analyse de la chaîne proposée dans [SPD-AI, section 7.3.1](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md). Recommandation : vérifier ces flux dans le déploiement réel, plutôt que promettre une absence automatique de transmission.
-
-Risques résiduels d'un modèle open weight, quelle que soit son origine :
-- biais ou comportements indésirables liés à l'entraînement (hypothèse à tester, pas un fait démontré pour un modèle donné) ;
-- dépendance au rythme de publication d'un laboratoire étranger ;
-- licence pouvant changer pour les versions futures (les versions déjà publiées restent sous leur licence d'origine).
-
-### Licences : à vérifier modèle par modèle
-
-Exemple concret : la licence « MIT modifiée » de Mistral pour Mistral Medium 3.5 128B et Devstral 2 123B n'accorde aucun droit si le chiffre d'affaires mensuel consolidé de l'entreprise dépasse 20 millions de dollars ; il faut alors une licence commerciale ou passer par les services hébergés de Mistral ([Developers Digest](https://www.developersdigest.tech/local-models/licenses)). D'autres modèles Mistral, comme Devstral Small 2 24B, Mistral Small 4 et Mistral Large 3, figurent parmi les modèles sous licence permissive standard selon la même source.
-
-Autre point : Scaleway indique que certaines licences restrictives (par exemple non commerciales) ne s'appliquent pas à l'usage via ses produits, grâce à des partenariats ([Scaleway](https://www.scaleway.com/en/docs/generative-apis/reference-content/supported-models/)). C'est utile, mais cela crée une dépendance à l'hébergeur : le même modèle auto-hébergé n'aurait pas les mêmes droits.
-
-## 4. La situation aujourd'hui (octobre 2026)
-
-### Les briques d'une chaîne de développement assisté par IA
-
-| Brique | Rôle | Point de vigilance souveraineté |
+| Modèle ou version | Licence ou condition constatée | Conséquence pratique |
 |---|---|---|
-| Modèle | Génère et modifie le code | Opérateur de l'inférence, licence |
-| Inférence | Exécute le modèle (API ou serveur) | Juridiction de l'hébergeur |
-| Agent / IDE | Lit les fichiers, appelle les outils, lance les tests | Télémétrie, indexation, relais cloud |
-| Forge Git | Dépôts, revues, CI | Hébergement du code source lui-même |
-| CI / exécution | Compilation, tests, sandbox de l'agent | Accès aux secrets, réseau sortant |
-| Sécurité | Scanners, revue, SBOM | Ne pas confier la validation au même modèle que la génération |
+| Qwen3.8-27B | Apache 2.0 ; modèle de langage annoncé à 27 milliards de paramètres, 28 milliards dans la métadonnée globale incluant d'autres composants ([fiche officielle](https://huggingface.co/Qwen/Qwen3.8-27B)) | Candidat compact à évaluer ; tenir compte de tous les composants et du contexte. |
+| Devstral Small 2 24B, version 2512 | Apache 2.0 ([fiche officielle](https://huggingface.co/mistralai/Devstral-Small-2-24B-Instruct-2512)) | Candidat européen pour un pilote local ; ne pas extrapoler sa licence aux autres Devstral. |
+| Devstral 2 123B, version 2512 | MIT modifiée : droits exclus si le revenu mensuel consolidé mondial de l'entreprise, ou de l'employeur, dépasse 20 millions de dollars pour le mois précédent ([licence officielle](https://huggingface.co/mistralai/Devstral-2-123B-Instruct-2512/raw/main/LICENSE)) | Vérifier le groupe et l'usage ; une licence commerciale peut être nécessaire. |
+| Mistral Medium 3.5 128B | Même type de condition de revenu dans la licence MIT modifiée ([licence officielle](https://huggingface.co/mistralai/Mistral-Medium-3.5-128B/raw/main/LICENSE)) | Ne pas présenter cette licence comme MIT standard. |
+| Mistral Small 4 et Mistral Large 3 | Apache 2.0 selon l'éditeur ; Small 4 est annoncé à 119 milliards de paramètres totaux, Large 3 à 675 milliards ([Small 4](https://mistral.ai/news/mistral-small-4/?id=MistralSmall4), [Large 3](https://docs.mistral.ai/models/mistral-large-3-25-12.md)) | Le nom « Small » ne constitue pas un dimensionnement matériel. |
+| GLM-5.3 | Licence propre ; une activité de Model-as-a-Service et un revenu agrégé supérieur à 10 milliards de dollars sur douze mois consécutifs peuvent déclencher une revue de sécurité Z.ai avant usage commercial, selon les conditions de la licence ([licence officielle](https://huggingface.co/zai-org/GLM-5.3/raw/main/LICENSE)) | Ne pas l'assimiler à MIT ; analyser les affiliés, la définition du MaaS et le cas d'usage. |
 
-### Offres européennes d'inférence disponibles
+Scaleway indique que des partenariats peuvent couvrir certains usages qui seraient restreints par les licences d'origine ; ces droits de service ne sont pas automatiquement ceux d'un déploiement autonome ([documentation des modèles](https://www.scaleway.com/en/docs/generative-apis/reference-content/supported-models/)). Recommandation : conserver, pour chaque version, les poids, la licence, le moteur validé et les droits contractuels, sans supposer qu'ils s'étendent aux générations suivantes.
 
-Scaleway Generative APIs :
-- hébergement à Paris, API compatible OpenAI ([DeepWiki, documentation Scaleway](https://deepwiki.com/scaleway/docs-content/5.1-generative-apis)) ;
-- catalogue incluant GLM-5.3 (contexte 256k), Devstral 2 123B, DeepSeek-V4-Flash et Qwen3.8 27B ([Scaleway, modèles supportés](https://www.scaleway.com/en/docs/generative-apis/reference-content/supported-models/), [Scaleway, documentation](https://www.scaleway.com/en/docs/generative-apis/)) ;
-- Scaleway affirme que Qwen3.8 27B est le modèle open weight le plus performant de sa taille sur la plupart des benchmarks en août 2026 et qu'il peut être branché dans des outils agentiques ou IDE ([Scaleway](https://www.scaleway.com/en/docs/generative-apis/)). C'est une affirmation du fournisseur, à vérifier sur vos tâches ;
-- tarif public affiché par exemple pour mistral-medium-3.5-128b : 1,50 € par million de tokens en entrée, 7,50 € en sortie ([Scaleway](https://www.scaleway.com/en/generative-apis/)) ;
-- déploiements dédiés possibles, y compris de vos propres modèles ([Scaleway FAQ](https://www.scaleway.com/en/docs/generative-apis/faq/)).
+## Services européens et outils de développement
 
-OVHcloud AI Endpoints :
-- plus de 20 modèles open weight, hébergés et exploités dans l'UE, données non utilisées pour l'entraînement ([OVHcloud](https://www.ovhcloud.com/en/public-cloud/ai-endpoints/)) ;
-- API compatible OpenAI, intégration annoncée avec OpenCode, Continue et Hugging Face ([OVHcloud](https://www.ovhcloud.com/en/public-cloud/ai-endpoints/)) ;
-- limite de 400 requêtes par minute par projet et par modèle avec clé d'API ([OVHcloud docs](https://docs.ovhcloud.com/en/guides/public-cloud/ai-machine-learning/ai-endpoints-capabilities.md)) ;
-- cycle de vie : certains modèles sont retirés après environ trois mois d'annonce, par exemple Mistral-Small-3.2-24B, retrait prévu le 4 novembre 2026 ([OVHcloud docs](https://docs.ovhcloud.com/en/guides/public-cloud/ai-machine-learning/ai-endpoints-billing)).
+### Offres d'inférence : distinguer catalogue, service réel et contrat
 
-À compléter selon vos besoins : Mistral AI (API et offres entreprise), IONOS, OUTSCALE, Cloud Temple et autres hébergeurs qualifiés SecNumCloud. [à vérifier : catalogue IA et qualification réelle de chaque offre]
+Scaleway liste notamment GLM-5.3, Qwen3.8-27B, Mistral Medium 3.5 et DeepSeek-V4.1-Flash ; les limites de contexte et de sortie dépendent de l'offre ([catalogue officiel](https://www.scaleway.com/en/docs/generative-apis/reference-content/supported-models/)). Les qualificatifs de performance figurant sur ces pages restent des déclarations du fournisseur, pas des résultats sur le code du projet.
 
-Point important : le cycle de vie des modèles chez un hébergeur est une contrainte d'exploitation. Scaleway documente des dates de dépréciation et de fin de vie, avec redirection automatique vers un autre modèle ([Scaleway](https://www.scaleway.com/en/docs/generative-apis/reference-content/supported-models/)). Une redirection silencieuse peut changer le comportement d'un agent : il faut fixer les versions et suivre ces annonces.
+Une contradiction concerne Devstral 2 : le catalogue le marque disponible en serverless, mais le tableau de cycle de vie indique une fin au 1er août 2026 avec routage vers un autre modèle ; il n'apparaît pas dans le tarif serverless courant ([catalogue et fin de vie](https://www.scaleway.com/en/docs/generative-apis/reference-content/supported-models/), [tarifs](https://www.scaleway.com/en/pricing/model-as-a-service/)). Recommandation : ne pas le retenir comme endpoint de production disponible sans vérifier le modèle réellement servi et les modalités de déploiement dédié.
 
-### Le maillon faible actuel : les outils
+OVHcloud annonce plus de vingt modèles open weight, une exécution dans l'UE, l'absence d'entraînement sur les données client, une API compatible OpenAI et des intégrations comme OpenCode, Continue et LiteLLM ; la page conserve une réserve pour les données nécessaires à la facturation ([AI Endpoints](https://www.ovhcloud.com/en/public-cloud/ai-endpoints/)). Le détail des traces, de leur durée et des sous-traitants reste à obtenir dans les documents contractuels.
 
-Les modèles et l'inférence européens existent. Le vrai écart se situe dans les outils : les assistants les plus utilisés (Cursor, GitHub Copilot, Claude Code, Codex, Windsurf, etc.) sont édités par des entreprises américaines et s'appuient souvent sur leurs propres services cloud, même quand on configure un modèle externe.
+OVHcloud prévoit trois mois de grâce pour certains retraits ; Mistral-Small-3.2-24B-Instruct-2506 doit être retiré le 4 novembre 2026, après annonce du 4 août, avec réponse 404 après extinction ([documentation du cycle de vie](https://docs.ovhcloud.com/en/guides/public-cloud/ai-machine-learning/ai-endpoints-billing)). Recommandation : désigner un destinataire des annonces, fixer les versions lorsque c'est possible et rejouer les tests lors de tout changement.
 
-Alternatives réalistes aujourd'hui :
-- agents open source configurables avec un point d'accès compatible OpenAI : OpenCode, Continue, Aider, Cline et équivalents ;
-- IDE sans télémétrie obligatoire : VSCodium, JetBrains (éditeur d'origine européenne, mais vérifier où passent les fonctions IA), Neovim, Zed ;
-- forge auto-hébergée : GitLab self-managed, Forgejo/Gitea, ou un hébergement européen.
+Cloud Temple décrit une offre GPU et un service LLMaaS sur une infrastructure qu'il présente comme qualifiée SecNumCloud et certifiée HDS ; cette formulation porte sur l'infrastructure et ne démontre pas, seule, la qualification du service d'inférence complet ([offre IA](https://www.cloud-temple.com/en/ai-offer/)). Le contrat, la décision ANSSI et le périmètre technique doivent être examinés ensemble.
 
-Hypothèse de travail : ces outils open source offrent aujourd'hui une expérience un peu moins intégrée que les meilleurs outils commerciaux, mais l'écart dépend surtout de la qualité du modèle et du contexte fourni. À mesurer dans le pilote.
+### Choisir les outils sans déduire la souveraineté de leur interface
 
-### Cadre réglementaire européen
+Recommandation : privilégier un IDE et un agent configurables, un routage maîtrisé, une forge hébergée dans le périmètre autorisé et une exécution des tâches isolée. Une API compatible OpenAI facilite l'intégration, mais ne démontre ni l'absence de relais cloud, ni l'égalité de qualité ou de comportement entre modèles.
 
-Les obligations des fournisseurs de modèles d'IA à usage général (GPAI) s'appliquent depuis le 2 août 2025, et les pouvoirs d'exécution de la Commission depuis le 2 août 2026 ([AI Act Service Desk](https://ai-act-service-desk.ec.europa.eu/fr/faq?combine=)). Les fournisseurs de modèles sous licence libre et open source n'ont, sauf risque systémique, que les obligations liées au droit d'auteur et au résumé des données d'entraînement ([artificialintelligenceact.eu](https://artificialintelligenceact.eu/fr/high-level-summary/)).
+Le dossier d'évaluation proposé couvre :
 
-Pour une équipe qui utilise un assistant de code en interne, l'AI Act pèse surtout indirectement : documentation fournie par les fournisseurs, littératie IA des équipes, et vigilance si le logiciel produit est lui-même un système IA à haut risque. Les obligations de l'annexe III ont été reportées au 2 décembre 2027 selon [Cabinet Persée](https://cabinetpersee.com/blog/posts/ai-act-ce-qui-change-2026/).
+- **IDE et agent** : indexation, télémétrie, relais, mises à jour, authentification et outils externes.
+- **Inférence** : opérateur, modèle réel, licence, contexte, quota, disponibilité et retrait.
+- **Forge et CI** : dépôt, permissions, compilation, tests, artefacts et secrets.
+- **Exécution** : sandbox, filtrage réseau, dépendances et accès aux systèmes tiers.
+- **Exploitation** : surveillance, support, restauration, réversibilité et compétences.
 
-Pour vos sujets industriels, le Cyber Resilience Act et l'IEC 62443 comptent davantage : le code généré par IA reste sous votre responsabilité de fabricant (gestion des vulnérabilités, SBOM, traçabilité).
+## Référentiels européens à considérer
 
-### Autres référentiels « à la SecNumCloud » à considérer
+La sécurité du produit, la gouvernance de l'organisation, la protection des données et la qualification de l'hébergement doivent être instruits séparément. Le tableau suivant présente leur utilité, sans présumer leur équivalence ni leur application automatique au projet.
 
-SecNumCloud n'est pas seul. Plusieurs dispositifs européens se recoupent, se complètent ou se concurrencent. Le point important : la plupart s'appliquent à l'hébergement et aux services, pas à votre logiciel lui-même. Pour un éditeur de logiciel souverain, ils comptent à deux titres : pour choisir où faire tourner votre SaaS, et comme exigences d'accès à certains marchés publics.
+| Dispositif | Périmètre et repère documentaire | Utilisation proposée |
+|---|---|---|
+| SecNumCloud | Qualification française d'un service cloud dans un périmètre défini ; exigences de maîtrise technique, de localisation et de protection vis-à-vis du droit extra-européen ([référentiel ANSSI](https://cyber.gouv.fr/documents/388/secnumcloud-referentiel-exigences-v3.2.pdf)) | Choix d'hébergement lorsque le risque ou une exigence applicable le justifie. |
+| EUCS | La Commission le classe parmi les schémas en préparation ; la page ne permet pas de conclure au contenu définitif d'un futur schéma ([cadre européen](https://digital-strategy.ec.europa.eu/en/factpages/european-cybersecurity-certification-framework)) | Veille ; ne pas bâtir une garantie sur un certificat ou des critères futurs présumés. |
+| EUCC | Certification de produits TIC ; application depuis le 27 février 2025, niveaux substantiel et élevé ; durée en principe de cinq ans maximum, avec dérogation possible ([règlement 2024/482, art. 4, 12 et 50](https://eur-lex.europa.eu/eli/reg_impl/2024/482/oj/eng), [ENISA](https://certification.enisa.europa.eu/browse-topic/eucc_en)) | Évaluation de sécurité d'un produit dans un périmètre choisi, pas label général de souveraineté. |
+| C5:2026 | Attestation allemande ; 168 critères dans 17 domaines, avec calendrier de transition des audits autour du 1er juin 2027 ([BSI, FAQ](https://www.bsi.bund.de/EN/Themen/Unternehmen-und-Organisationen/Informationen-und-Empfehlungen/Empfehlungen-nach-Angriffszielen/Cloud-Computing/Kriterienkatalog-C5/C5-FAQ/kriterienkatalog-c5-faq.html)) | Exigences clients et preuve de sécurité cloud ; ne pas parler de « certificat C5 ». |
+| C3A | Cadre de souveraineté publié par le BSI le 27 avril 2026, complémentaire de C5, sans portée réglementaire contraignante en lui-même ([annonce BSI](https://www.bsi.bund.de/DE/Service-Navi/Presse/Pressemitteilungen/Presse2026/260427_C3A.html), [cadre C3A](https://www.bsi.bund.de/EN/Themen/Unternehmen-und-Organisationen/Informationen-und-Empfehlungen/Empfehlungen-nach-Angriffszielen/Cloud-Computing/C3A/C3A.html)) | Grille d'autonomie juridique, opérationnelle et technique, selon les critères pertinents pour le cas d'usage. |
+| ENS | Schéma espagnol du secteur public et de certains fournisseurs contractuels ; déclaration ou certification selon la catégorie du système ([RD 311/2022, art. 2 et 38](https://www.boe.es/buscar/act.php?id=BOE-A-2022-7191)) | Examiner les exigences des marchés publics espagnols visés. |
+| Qualifications ACN | Qualification des services cloud pour l'administration italienne, selon la classification des données et services et le catalogue ACN ([règlement ACN](https://www.acn.gov.it/portale/en/cloud/regolamento-cloud-per-la-pa)) | Vérifier le service et le niveau requis pour le marché italien. |
+| HDS | Certification d'hébergement de données de santé dans son champ légal ; le référentiel v2.0 exige notamment ISO 27001, stockage EEE et encadrement des accès hors EEE ([ANS, référentiel](https://esante.gouv.fr/sites/default/files/media_entity/documents/referentiel_certification_hds---fr--v2.pdf)) | Analyser le champ de l'hébergement concerné ; HDS ne démontre pas, seul, une absence d'exposition aux lois étrangères. |
+| Cloud and AI Development Act | Proposition COM(2026) 502 présentée le 3 juin 2026, avec un cadre de souveraineté et des mécanismes pour le secteur public ([proposition Commission](https://digital-strategy.ec.europa.eu/en/library/proposal-cloud-and-ai-development-act-cada), [quatre niveaux](https://digital-strategy.ec.europa.eu/en/policies/cloud-and-ai-development-act)) | Veille sur les achats publics ; distinguer les dispositions proposées des obligations déjà applicables. |
 
-| Dispositif | Pays ou niveau | Statut au 19 octobre 2026 | Ce qu'il couvre | Quand il vous concerne |
-|---|---|---|---|---|
-| EUCS | UE | non adopté : en négociation depuis 2020, les critères de souveraineté ont été retirés des projets et l'adoption reste bloquée ([Wikipédia](https://en.wikipedia.org/wiki/EUCS_(cloud_computing)), [Nexthop](https://www.nexthop.fr/en/understand/eucs)) | certification cloud européenne à trois niveaux (base, substantiel, élevé), harmonisant les schémas nationaux | à surveiller : c'est le futur cadre unifié, mais aucun fournisseur ne peut aujourd'hui revendiquer une certification EUCS |
-| Cloud and AI Development Act | UE | projet présenté le 3 juin 2026 par la Commission : un cadre de souveraineté à quatre niveaux pour la commande publique, de la localisation européenne jusqu'au contrôle capitalistique ([IT SOCIAL](https://itsocial.fr/cybersecurite/cybersecurite-articles/eucs-et-cada-leurope-abandonne-la-souverainete-dans-son-label-cloud-et-la-reintroduit-dans-la-commande-publique/)) | critères de souveraineté dans les marchés publics cloud | à intégrer dans votre veille si vous visez la commande publique européenne |
-| EUCC | UE | adopté (règlement d'exécution (UE) 2024/482), opérationnel depuis février 2025 ([Commission européenne](https://digital-strategy.ec.europa.eu/en/factpages/european-cybersecurity-certification-framework), [ENISA](https://certification.enisa.europa.eu/browse-topic/eucc_en?prefLang=ro)) | certification de produits ICT (matériel, logiciel, composants), basée sur Common Criteria, certificats valides jusqu'à 5 ans | si votre logiciel est un produit ICT à exigence de sécurité : c'est le premier schéma européen réellement délivrable |
-| C5 | Allemagne | version C5:2026 publiée en avril 2026, 168 critères sur 17 domaines, opposable aux audits à partir de juin 2027 ; le BSI prépare en complément des critères de souveraineté pour le cloud ([BSI](https://www.bsi.bund.de/DE/Service-Navi/Presse/Pressemitteilungen/Presse2026/260407_C5_Cloud_Computing.html), [CloudPick](https://docs.cloudpick.kr/en/eu/national-schemes/)) | attestation (par des auditeurs, pas une certification d'État) de la sécurité des services cloud | si vos clients sont allemands ou publics : l'attestation C5 de votre hébergeur est le standard de facto |
-| ENS | Espagne | en vigueur (real decreto 311/2022) ([Ministère de l'Économie espagnol](https://portal.mineco.gob.es/es-es/ministerio/estrategias/Paginas/Esquema_Nacional_de_Seguridad.aspx)) | schéma national de sécurité pour le secteur public espagnol et ses fournisseurs technologiques, avec exigences dédiées au cloud et à la chaîne d'approvisionnement | si vous vendez au secteur public espagnol |
-| Qualifications ACN | Italie | en vigueur | cadre de qualification des services cloud pour l'administration italienne ([CloudPick](https://docs.cloudpick.kr/en/eu/national-schemes/)) | si vous vendez au secteur public italien |
-| HDS | France | certification obligatoire pour l'hébergement de données de santé, ISO 27001 exigée, hébergement physique limité à l'EEE, exigences de souveraineté au chapitre 7 du référentiel ([Agence du Numérique en Santé](https://esante.gouv.fr/labels-certifications/hebergement-des-donnees-de-sante), [sante.gouv.fr](https://sante.gouv.fr/actualites-presse/presse/communiques-de-presse/article/publication-au-journal-officiel-du-referentiel-de-certification-hds)) | hébergement des données de santé à caractère personnel | si votre logiciel traite des données de santé, même indirectement |
+Le référentiel HDS v2.0 est associé à l'arrêté du 26 avril 2024, avec une transition des hébergeurs déjà certifiés jusqu'au 16 mai 2026 ; le PDF v2.1 accessible contient des dates d'arrêté non renseignées et ne suffit pas, seul, à établir son opposabilité ([v2.0](https://esante.gouv.fr/sites/default/files/media_entity/documents/referentiel_certification_hds---fr--v2.pdf), [transition ANS](https://esante.gouv.fr/faq/comment-sorganise-la-transition-avec-la-nouvelle-version-du-referentiel), [PDF v2.1](https://esante.gouv.fr/sites/default/files/media/document/R%C3%A9f%C3%A9rentiel_certification_HDS%20-%20FR%20-%20V2.1%20-%20post%20concertation.pdf)). Recommandation : citer la version réglementaire applicable et vérifier l'arrêté lors d'un engagement.
 
-Lecture pratique de ce paysage :
+Recommandation : construire un système de management de la sécurité cohérent, puis établir la correspondance avec les marchés visés. Un certificat ISO 27001 ne donne pas automatiquement une attestation C5, et aucun tableau comparatif ne remplace l'analyse des exigences propres à chaque dispositif ([BSI, FAQ C5](https://www.bsi.bund.de/EN/Themen/Unternehmen-und-Organisationen/Informationen-und-Empfehlungen/Empfehlungen-nach-Angriffszielen/Cloud-Computing/Kriterienkatalog-C5/C5-FAQ/kriterienkatalog-c5-faq.html)).
 
-1. Pour votre logiciel lui-même, la conformité produit passe par le CRA (section 10) et, pour un produit ICT à exigence de sécurité, par l'EUCC. Pour vos déploiements OT, l'IEC 62443 reste la référence. Les référentiels cloud ne certifient pas votre code.
-2. Les schémas nationaux restent le passeport réel : SecNumCloud en France, C5 en Allemagne, ENS en Espagne, ACN en Italie. Si votre SaaS vise plusieurs marchés publics européens, le plus réaliste aujourd'hui est un hébergeur multi-qualifié ou un déploiement par pays.
-3. L'EUCS devait unifier tout cela, mais les critères de souveraineté ont été retirés des projets face aux divisions entre États membres : un service certifié EUCS pourrait reposer sur un fournisseur exposé au CLOUD Act ([IT SOCIAL](https://itsocial.fr/cybersecurite/cybersecurite-articles/eucs-et-cada-leurope-abandonne-la-souverainete-dans-son-label-cloud-et-la-reintroduit-dans-la-commande-publique/)). La Commission semble déplacer la souveraineté vers la commande publique (Cloud and AI Development Act). À suivre de près, sans construire aujourd'hui une architecture qui dépend d'un texte non adopté.
-4. Recommandation : construire un système de management de la sécurité cohérent, puis cartographier les exigences propres à chaque référentiel. Ne pas supposer qu'ISO 27001 est partout exigée, qu'elle vaut équivalence ou qu'une qualification en remplace une autre.
-5. Recommandation : choisir ensemble les marchés visés, les exigences applicables, l'opérateur, l'hébergement et les accès d'administration. La localisation seule ne suffit ni à établir la souveraineté ni à obtenir la qualification du service fourni.
+## Architecture recommandée et patrimoine transmissible
 
-## 5. Architecture cible recommandée
+### Trois niveaux de confidentialité proposés
 
-### Principe : trois niveaux de confidentialité
+Ces niveaux sont une politique de travail, pas des catégories réglementaires. Ils s'appliquent aux artefacts et à leurs dérivés, pas automatiquement à une phase de projet.
 
-| Niveau | Exemples | Inférence autorisée | Outils autorisés |
-|---|---|---|---|
-| N1 – Public | Code open source, docs publiques | Toute API, y compris US si besoin | Tous |
-| N2 – Interne | Applications métier, outils internes | Hébergeur européen (Scaleway, OVHcloud, Mistral…) | Agents open source, sans télémétrie |
-| N3 – Sensible | Code OT, PLC, sécurité, données clients, défense | Auto-hébergé ou SecNumCloud | Agents open source, réseau sortant filtré |
+| Niveau | Exemples | Règle de traitement proposée |
+|---|---|---|
+| N1 : public | Code et documentation effectivement publics, sans secret ni données restreintes | Services et outils approuvés par l'organisation, sans exigence générale d'inférence interne. |
+| N2 : interne | Applications métier, spécifications et tests internes | Fournisseurs et destinations autorisés après revue des contrats et des flux, en privilégiant l'UE. |
+| N3 : sensible | Règles propriétaires critiques, sécurité, données clients sensibles, éléments OT selon analyse | Environnement interne ou service expressément autorisé ; qualification et exigences sectorielles selon le risque et le contrat. |
 
-Ce découpage évite deux erreurs : tout interdire (perte de productivité, usage parallèle non contrôlé) ou tout autoriser (fuite de code sensible).
+Recommandation : une spécification dérivée de règles sensibles conserve leur classification jusqu'à un déclassement explicite. Un produit neuf peut être N3 dès le départ ; un ancien dépôt n'est pas N3 du seul fait de son âge.
 
-Ces niveaux sont une politique proposée, pas des catégories réglementaires. Ils s'appliquent au contenu de chaque artefact : dépôt, extrait, spécification, capture, binaire, jeu de tests, index sémantique et journal ; ils ne déterminent pas les permissions de l'agent, conformément à [SPD-AI, section 5.1.5](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md).
+### Séparer inférence et exécution
 
-Une spécification dérivée de règles sensibles conserve leur classification, sauf revue et déclassement explicites. Ni un logiciel neuf n'est public par défaut, ni un patrimoine ancien sensible par nature ; une classification doit précéder l'accès des agents, comme le souligne [SPD-AI, section 6.1](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md).
+```text
+Développeur, IDE et agent configurés
+                  |
+     Politique d'accès et passerelle d'inférence
+                  |
+       +----------+------------------+
+       |                             |
+API européenne autorisée    Inférence interne ou hébergée
+selon les artefacts         dans le périmètre autorisé
 
-### Schéma logique
+L'agent travaille séparément dans une sandbox :
+forge -> branche -> compilation -> tests -> preuves -> acceptation
 
-```
-Développeur (IDE sans télémétrie + agent open source)
-        |
-  Passerelle IA interne (routage, journalisation, filtrage des secrets, quotas)
-        |-------------------------|---------------------------|
-  N3 : serveur interne        N2 : API européenne        N1 : API au choix
-  (vLLM / SGLang,             (Scaleway, OVHcloud,
-   modèle compact)             Mistral…)
-        |
-  Forge Git européenne / auto-hébergée -> CI isolée -> scanners de sécurité -> revue humaine
+La fusion et le déploiement restent soumis aux droits
+et décisions prévus par le processus de livraison.
 ```
 
-La passerelle interne (par exemple LiteLLM ou équivalent auto-hébergé) est la pièce maîtresse :
-- elle rend les modèles interchangeables, sans modifier les postes ;
-- elle applique les règles de destination selon la classification du dépôt et de chaque artefact ;
-- elle détecte et bloque les secrets identifiables avant envoi, sans garantie d'exhaustivité ;
-- elle fournit les mesures de coût et d'usage.
+La passerelle proposée applique les destinations, quotas et journaux nécessaires, et aide à détecter les secrets identifiables. Elle ne remplace ni le filtrage des autres sorties réseau, ni le contrôle des outils, ni l'analyse des droits d'administration ; la détection de secrets ne doit pas être présentée comme exhaustive.
 
-Recommandation : séparer la passerelle d'inférence de la sandbox d'exécution et de l'autorité d'acceptation. La passerelle ne remplace ni le filtrage des autres sorties réseau, ni le contrôle des outils appelés, ni la revue des preuves ; un service construit sur une infrastructure qualifiée ne doit pas être présenté comme lui-même qualifié sans vérification de son périmètre.
+Recommandation : garder des interfaces et contrats testables entre le moteur métier, les canaux d'accès et l'infrastructure. Vérifier la possibilité de changer de modèle et d'agent par un essai de substitution, pas seulement par la présence d'une API compatible.
 
-### Patrimoine transmissible, plutôt que contexte accumulé
+### Conserver les connaissances nécessaires à une reprise
 
-SPD-AI propose une chaîne de connaissance qui dépasse le code : contexte, règles validées, spécifications, décisions, réalisation, preuves et retours d'exploitation ; il distingue également le contexte court destiné aux agents de la mémoire explicative destinée aux personnes ([SPD-AI, section 4.1](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md)). Nous recommandons de conserver cette chaîne dans la forge maîtrisée, avec les mêmes contrôles de confidentialité que le code.
+Le patrimoine proposé comprend le contexte, les règles validées, les décisions, les spécifications, le code, les preuves et les retours d'exploitation. Le tableau ci-dessous est une méthode de travail, pas une norme imposant ces noms de fichiers.
 
-| Fichier proposé | Contenu minimal | Responsable de la validation |
+| Fichier proposé | Contenu minimal | Responsable proposé |
 |---|---|---|
-| `contexte.md` | Utilisateurs, objectifs, périmètre et exclusions | Product et métier |
-| `regles.md` | Définitions, unités, calculs, exceptions, références et dates de validité | Référent métier ou industriel |
-| `decisions.md` | Options retenues ou rejetées, raisons, risques et inconnues | Décideur identifié selon le sujet |
+| `contexte.md` | Utilisateurs, objectifs, périmètre, exclusions et inconnues | Product et métier |
+| `regles.md` | Définitions, unités, calculs, exceptions, sources et validité | Référent métier ou industriel |
+| `decisions.md` | Options retenues ou rejetées, raisons, risques et responsables | Décideur identifié selon le sujet |
 | `verification.md` | Cas de référence, résultats attendus, preuves et limites | Ingénierie, métier et qualité |
-| `exploitation.md` | Versions, responsables, accès, incidents, support et reprise | Exploitation et sécurité |
-| `marche.md`, si pertinent | Segments, alternatives, intégrations, hypothèses d'achat, sources et dates | Product |
+| `exploitation.md` | Versions, accès, support, incidents, sauvegarde et reprise | Exploitation et sécurité |
+| `marche.md`, si utile | Segments, alternatives, intégrations et hypothèses d'achat datées | Product |
 
-Ce dispositif est une proposition de méthode, pas une norme ni une obligation de créer ces noms de fichiers ; il reprend le dispositif minimal de [SPD-AI, section 4.1.4](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md). Pour chaque règle, tenir séparément son approbation métier, son implémentation et sa couverture de tests, avec provenance, date et validateur.
+Recommandation : tenir séparément l'approbation métier d'une règle, son implémentation et sa couverture de tests. Limiter le contexte automatique des agents aux informations utiles et mesurer l'effet des consignes, plutôt qu'injecter toute la documentation dans chaque requête.
 
-Recommandation : limiter `AGENTS.md` aux consignes utiles et non standard, puis mesurer leur effet au lieu d'injecter toute la documentation dans chaque requête. Un successeur doit pouvoir retrouver les raisons d'une décision et maintenir le produit, même si l'outil ou le modèle d'origine a disparu.
+## Permissions, sécurité et acceptation
 
-### Architecture vérifiable et réversible
+### Permissions explicites
 
-SPD-AI propose de séparer le moteur métier de ses canaux d'accès et de préserver contrats d'interface, permissions, chaîne de compilation et preuves par plateforme ; Rust, WebAssembly ou WebGPU y sont des options à évaluer, pas des garanties universelles de qualité ([SPD-AI, section 5.3](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md)). La recommandation pratique est de choisir des composants que l'équipe peut effectivement comprendre, tester, remplacer et exploiter, plutôt qu'une pile supposée idéale pour les agents.
-
-### Choix de modèles pour un pilote
-
-| Rôle | Candidat | Où l'exécuter |
-|---|---|---|
-| Référence de qualité, tâches difficiles | GLM-5.3 | API européenne (disponible chez [Scaleway](https://www.scaleway.com/en/docs/generative-apis/reference-content/supported-models/)) |
-| Modèle de code européen | Devstral 2 123B, Devstral Small 2 24B | API Mistral ou européenne ; vérifier la licence avant auto-hébergement |
-| Candidat compact local | Qwen3.8 27B | Serveur interne ou API européenne |
-| Référence coût/vitesse | DeepSeek-V4-Flash | Hébergeur européen, pas l'API chinoise |
-
-## 6. Demain : 12 à 36 mois
-
-Ce qui suit relève de l'analyse prospective, pas de faits établis.
-
-### Tendances probables
-
-- Des modèles compacts (20 à 80 milliards de paramètres) suffisants pour la majorité des tâches courantes. C'est la tendance la plus favorable à l'auto-hébergement, car elle ramène le besoin matériel à un ou deux serveurs GPU.
-- Des agents plus autonomes, qui travaillent de longues heures sur un ticket. Le coût se déplace alors vers la mémoire de contexte et la sandbox d'exécution, plus que vers les poids du modèle.
-- Une offre européenne plus large : catalogues d'inférence plus fournis, offres qualifiées SecNumCloud avec GPU, et probablement des outils de développement européens plus complets. [à vérifier au fil des annonces]
-- Des exigences clients et réglementaires plus fortes sur la traçabilité du code généré (CRA, NIS2 chez vos clients, achats publics).
-
-### Trois trajectoires à ne pas confondre avec une prévision
-
-SPD-AI présente trois futurs à égalité : une autonomie accompagnée des métiers, une spécification devenue artefact principal, ou une automatisation beaucoup plus large ; dans les trois cas, transmission, preuves, décisions sur la valeur et responsabilités demeurent nécessaires ([SPD-AI, section 8.1](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md)). Ce guide ne présume donc ni la disparition de la lecture du code, ni la régénération fiable de tous les produits, ni la supériorité durable d'une taille de modèle.
-
-Recommandation : conserver des spécifications, interfaces, preuves et procédures de reprise portables dans chacune de ces trajectoires. L'option d'un remplacement futur du modèle ou de l'agent doit être vérifiée par un essai de substitution, pas seulement annoncée dans l'architecture.
-
-### Ce qui pourrait remettre en cause la stratégie
-
-| Évènement | Effet | Réponse |
-|---|---|---|
-| Écart de qualité fort et durable entre modèles fermés US et open weight | Coût d'opportunité de la souveraineté | Garder N1 ouvert aux meilleurs modèles pour le code non sensible |
-| Changement de licence des futurs modèles open weight | Moins de choix en auto-hébergement | Conserver les poids et versions validés ; diversifier les familles |
-| Hébergeur européen racheté par un groupe non européen | Perte de l'immunité | Clause de changement de contrôle, passerelle permettant de basculer |
-| Pénurie ou forte hausse des GPU | Coût de l'auto-hébergement | Location chez un hébergeur européen plutôt qu'achat |
-| Restrictions d'export sur les modèles ou puces | Accès aux nouvelles versions | Stock de versions validées, veille |
-
-## 7. Feuille de route proposée
-
-### Phase 1 – 0 à 3 mois : cadrer et mesurer
-
-- Classer les dépôts et leurs artefacts en N1, N2, N3 ; désigner les responsables des déclassements.
-- Constituer le patrimoine minimal et distinguer comportement observé, règle approuvée et comportement cible.
-- Définir les permissions des agents et l'autorité d'acceptation avant les premiers essais.
-- Inventorier les outils IA déjà utilisés (y compris usages personnels non déclarés).
-- Mettre en place la passerelle IA et un agent open source sur un groupe pilote.
-- Constituer un banc d'essai interne : 30 à 50 tickets réels (Python, JavaScript, Structured Text, modèles d'optimisation), avec critères d'acceptation.
-- Comparer 3 à 4 modèles sur ce banc via des API européennes, sans achat matériel.
-
-### Phase 2 – 3 à 9 mois : généraliser N2, préparer N3
-
-- Étendre aux équipes sur le code N2.
-- Louer un serveur GPU européen pour tester un modèle compact en N3.
-- Mettre en place les règles : revue dimensionnée selon le risque, scanners, SBOM, preuves indépendantes et journalisation des contributions IA.
-- Financer le maintien des tests, de la compréhension des équipes et de la capacité de reprise, pas seulement la consommation IA.
-- Négocier les contrats : localisation, sous-traitants, absence d'entraînement sur vos données, notification des réquisitions, changement de contrôle.
-
-### Phase 3 – 9 à 24 mois : réduire la dépendance US
-
-- Basculer progressivement les usages N1 vers les services européens si la qualité mesurée le permet.
-- Décider achat ou location du matériel N3 selon la charge mesurée.
-- Revoir le banc d'essai à chaque génération de modèles majeure.
-
-## 8. Indicateurs à suivre
-
-L'indicateur de gestion proposé est le coût complet par modification acceptée puis maintenue en exploitation, et non le prix du token ou le volume de code ; SPD-AI le décompose en huit activités et rappelle qu'une acceptation trop indulgente peut fausser la mesure ([SPD-AI, section 7.2](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md)). Nous recommandons une fenêtre d'observation explicite, par exemple 30 jours à adapter au cycle du produit, sans attendre cette échéance pour traiter les incidents graves.
-
-\[
-\text{Coût par modification acceptée} = \frac{\text{coûts complets de la période, reprises et défauts inclus}}{\text{modifications acceptées et maintenues sur la fenêtre retenue}}
-\]
-
-Compléter par :
-- taux de modifications acceptées sans retouche ;
-- temps de revue humaine par modification ;
-- régressions et vulnérabilités détectées après fusion ;
-- part de l'usage IA passant par des services européens ou internes (indicateur de souveraineté) ;
-- satisfaction des développeurs (un outil contourné n'apporte aucune protection).
-
-Décomposer le coût en préparation du contexte, génération, évaluations automatiques, revue, corrections, déploiement, surveillance et défauts après acceptation, conformément à [SPD-AI, section 7.2.1](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md). Pour éviter les doubles comptes, répartir la plateforme partagée une seule fois, puis enregistrer les temps humains et consommations propres à chaque activité.
-
-Recommandation : suivre aussi les écarts métier inexpliqués, les retours arrière, le temps de reprise par un autre ingénieur et l'effet sur l'usage réel. Une meilleure note technique ou davantage de tickets fermés ne démontrent pas, seuls, une meilleure valeur produit.
-
-## 9. Règles de sécurité indépendantes du modèle
-
-- Ne jamais donner à l'agent des droits de fusion ou de déploiement.
-- Exécuter les agents dans une sandbox, réseau sortant limité à la passerelle.
-- Interdire les secrets dans le contexte (détection automatique avant envoi).
-- Valider le code généré par des outils indépendants (SAST, analyse des dépendances, tests), pas par le même modèle.
-- Vérifier les dépendances proposées par l'IA : paquets inexistants ou malveillants au nom proche.
-- Pour le code OT et PLC : revue par un expert du domaine et tests sur simulateur avant tout essai sur équipement.
-
-### Permissions explicites et autorité d'acceptation
-
-Le cadre de permissions de SPD-AI distingue accès, modification, validation, escalade et réversibilité ; il ne les déduit ni de la confidentialité ni de la seule capacité du modèle ([SPD-AI, section 5.1](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md)). Les valeurs ci-dessous sont recommandées pour un produit partagé ou critique.
+La confidentialité des artefacts, les permissions de l'agent et l'acceptation du résultat sont trois décisions distinctes. Les règles suivantes sont proposées pour un produit partagé ou critique.
 
 | Permission | Règle de départ | Contrôle attendu |
 |---|---|---|
-| Accès | Seulement les artefacts nécessaires et les destinations autorisées | Identité, périmètre et journal d'accès |
-| Modification | Branche de travail ou sandbox ; aucune écriture de production | Droits techniques limités et contrôle des outils |
-| Validation | Proposer un dossier, sans auto-accepter le changement | Décision par l'autorité désignée |
-| Escalade | Arrêt en cas de règle ambiguë, secret, effet irréversible ou écart inexpliqué | Critères d'arrêt et interlocuteur identifiés |
-| Réversibilité | Retour arrière vérifié avant toute action engageante | Sauvegarde, restauration et procédure testées |
+| Accès | Seulement les artefacts et destinations nécessaires et autorisés | Identité, périmètre et journal |
+| Modification | Branche de travail ou sandbox, sans écriture de production | Droits techniques limités |
+| Validation | L'agent propose un dossier, sans auto-accepter le changement | Décision de l'autorité désignée |
+| Escalade | Arrêt sur règle ambiguë, secret, effet irréversible ou écart inexpliqué | Critères d'arrêt et interlocuteur |
+| Réversibilité | Retour arrière vérifié avant une action engageante | Sauvegarde, restauration et procédure testées |
 
-SPD-AI sépare trois acceptations : technique, métier, puis produit et exploitation ; il souligne que désigner un signataire sans temps, information ni pouvoir de refus ne constitue pas une supervision effective ([SPD-AI, section 5.2](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md)). Recommandation : affecter ces décisions aux personnes compétentes, pas automatiquement au Product Manager, et conserver leurs raisons, les réserves et la version des preuves.
+Recommandation : ne pas donner à l'agent un droit autonome de fusion ou de déploiement sur les produits concernés. Isoler son exécution, filtrer les sorties, protéger les secrets et contrôler les dépendances qu'il propose.
 
-Recommandation : protéger les tests d'acceptation et les données de référence contre les modifications non approuvées des agents ; conserver des contrôles indépendants de ceux qui pilotent la génération. Des tests passés, un second modèle favorable ou une sandbox ne suffisent pas à exclure un défaut métier ou une exfiltration.
+### Trois acceptations et des preuves indépendantes
 
-## 10. Compliance NIS2 et Cyber Resilience Act
+Le processus proposé distingue :
 
-Ces deux textes transforment vos choix d'outils IA en enjeu de conformité, pas seulement de productivité. NIS2 vous concerne comme entité potentiellement assujettie (énergie, fabrication), le CRA comme fabricant si vos logiciels sont mis sur le marché européen.
+- **Acceptation technique** : compilation, tests, sécurité, intégration, performances et maintenabilité.
+- **Acceptation métier** : justesse des règles, unités, exceptions et résultats attendus.
+- **Acceptation produit et exploitation** : utilité, risques résiduels, support, surveillance et capacité de reprise.
 
-### 10.1 NIS2 : ce qui vous attend
+Recommandation : affecter chaque décision à une personne compétente disposant de temps, d'informations et d'un pouvoir réel de refus, sans attribuer toutes les responsabilités au Product Manager. Conserver la décision, les réserves, la version du logiciel et les preuves examinées.
 
-Repères et réserves sur l'état du droit :
-- la directive (UE) 2022/2555 couvre 18 secteurs critiques, dont l'énergie, avec deux catégories d'entités (essentielles et importantes) et des mesures minimales de gestion des risques ([Commission européenne](https://digital-strategy.ec.europa.eu/en/policies/nis2-directive)) ;
-- l'état juridique exact de la transposition française n'est pas établi par cette révision : SPD-AI le conserve comme point à vérifier, plutôt que d'en déduire une date ou une absence de promulgation ([SPD-AI, sections 7.3.4 et H.3](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md)) ;
-- SPD-AI relève la disponibilité du Référentiel Cyber France (ReCyF) depuis le 17 mars 2026 comme document de travail ; ce guide recommande de l'utiliser pour la préparation, sans le présenter comme une certification ni une garantie de conformité ([SPD-AI, section 7.3.4](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md)) ;
-- l'enregistrement des entités se fera sur la plateforme MonEspaceNIS2, en cours de développement ([FAQ MonEspaceNIS2](https://aide.monespacenis2.cyber.gouv.fr/fr/category/obligations-9vpf70/)).
+Les contrôles proposés comprennent SAST, analyse des dépendances, tests de non-régression et vérification des paquets introduits. Protéger les tests d'acceptation et les jeux de référence contre les modifications non approuvées ; l'avis d'un autre modèle peut aider, mais ne remplace pas ces preuves.
 
-Les mesures minimales de l'article 21 incluent notamment : analyse de risques, gestion d'incidents, continuité d'activité, sécurité de la chaîne d'approvisionnement, sécurité de l'acquisition, du développement et de la maintenance (y compris traitement et divulgation des vulnérabilités), cyberhygiène, cryptographie, contrôle d'accès et authentification multifacteur ([ANSSI, FAQ NIS2](https://aide.monespacenis2.cyber.gouv.fr/fr/article/quelles-sont-les-exigences-en-matiere-de-cybersecurite-auxquelles-les-entites-regulees-a-la-directive-nis-2-devront-se-soumettre-193huwi/)). L'article 20 impose en plus que l'organe de direction approuve ces mesures et en supervise la mise en œuvre, ses membres devant suivre une formation.
+Pour le code OT et PLC, prévoir une revue de domaine et des essais adaptés sur simulateur ou banc avant tout essai sur équipement. La génération de code ne modifie pas les conditions d'autorisation et de sûreté retenues par l'organisation.
 
-### 10.2 NIS2 appliqué à votre chaîne de développement IA
+## Conformité : NIS2, CRA, données et AI Act
 
-C'est le point de jonction avec ce document : la sécurité de la chaîne d'approvisionnement (article 21(2)(d)) et la sécurité du développement (article 21(2)(e)) englobent vos outils d'IA.
+### Analyser le champ avant de constituer le dossier
 
-| Exigence NIS2 | Application à la chaîne IA | Lien avec ce document |
+Les pièces ci-dessous sont des propositions de preuve et de gouvernance, pas une certification de conformité. Le rôle de l'entreprise et la qualification du service doivent être examinés avant de transformer cette grille en obligations contractuelles.
+
+| Niveau | Question préalable | Pièces recommandées |
 |---|---|---|
-| Sécurité de la chaîne d'approvisionnement | Vos fournisseurs d'inférence, d'IDE, d'agents et d'hébergement sont des fournisseurs directs : évaluer leurs pratiques de développement sécurisé | Sections 3 et 4 (choix de fournisseurs, contrats) |
-| Sécurité du développement et des vulnérabilités | Le code généré par IA entre dans vos produits : processus de détection, correction et divulgation des vulnérabilités | Section 9 (règles de sécurité) |
-| Analyse de risques | Cartographier les risques propres à chaque usage d'IA (fuite de code, dépendance, injection) | Passerelle et classification N1/N2/N3 |
-| Contrôle d'accès et MFA | Restreindre les droits des agents, journaliser leurs actions | Section 9 (droits des agents) |
-| Gouvernance (art. 20) | La direction approuve la politique d'usage de l'IA et les mesures associées | Politique d'usage à formaliser |
+| Produit | Quel produit, mode de fourniture et rôle de fabricant sont concernés ? | Analyse de champ, risques, composants, tests, vulnérabilités et support |
+| Organisation | L'entité relève-t-elle de NIS2 et selon quelle transposition ? | Gouvernance, risques, fournisseurs, continuité et notifications |
+| Données | Quels traitements, destinataires et transferts doivent être examinés ? | Inventaire, sous-traitants, lieux, conservation et accès |
+| Hébergement | Quel service est effectivement qualifié et avec quelles conditions ? | Décision, périmètre, contrat et partage des responsabilités |
+| IA | Utilise-t-on un outil de développement ou fournit-on aussi un système ou modèle d'IA ? | Analyse des rôles, usages, intégrations et obligations applicables |
 
-Recommandations concrètes :
-1. Documenter une politique d'usage de l'IA en développement, approuvée par la direction : c'est une déclinaison proposée de la gouvernance, pas l'affirmation que l'article 20 exige un document portant ce titre.
-2. Évaluer formellement chaque fournisseur de la chaîne IA (hébergeur, éditeur d'outil, forge) sur ses pratiques de développement sécurisé : l'article 21(3) impose de tenir compte des vulnérabilités propres à chaque fournisseur direct.
-3. Le ReCyF de l'ANSSI donne une base de travail dès maintenant, sans attendre la loi : l'utiliser comme grille d'autodiagnostic.
-4. Anticiper la notification d'incidents significatifs : alerte sous 24 h, notification sous 72 h. Un incident lié à un outil IA (fuite de code, compromission d'un agent) peut être un incident NIS2 : la classification N1/N2/N3 aide à qualifier la gravité.
+### NIS2 : gouvernance et sécurité du développement
 
-### 10.3 Cyber Resilience Act : ce qui vous attend
+La directive NIS2 prévoit notamment l'approbation et la supervision des mesures par les organes de direction, leur formation et la sécurité des fournisseurs directs, de l'acquisition, du développement et de la maintenance ([directive 2022/2555, art. 20 et 21](https://eur-lex.europa.eu/eli/dir/2022/2555/oj/eng)). Elle n'impose pas un document intitulé « politique IA » ni l'utilisation générale de SecNumCloud.
 
-Le CRA (règlement (UE) 2024/2847) impose des exigences de cybersécurité aux produits numériques mis sur le marché européen. Calendrier vérifié :
-- 11 juin 2026 : application des dispositions sur la notification des organismes d'évaluation de conformité ([entreprises.gouv.fr](https://www.entreprises.gouv.fr/decryptages-de-nos-experts/cyber-resilience-act-cra-ce-qui-change-pour-les-entreprises-et-comment)) ;
-- 11 septembre 2026 : obligations de signalement en vigueur. Les fabricants doivent notifier les vulnérabilités activement exploitées et les incidents graves via la plateforme unique de l'ENISA : alerte précoce sous 24 h, notification sous 72 h, rapport final sous 14 jours (vulnérabilités) ou un mois (incidents) ([Commission européenne](https://digital-strategy.ec.europa.eu/en/policies/cra-reporting), [ENISA](https://www.enisa.europa.eu/news/the-cra-single-reporting-platform-is-launched)) ;
-- 11 décembre 2027 : application complète, marquage CE et exigences essentielles de l'annexe I ([Commission européenne](https://digital-strategy.ec.europa.eu/en/policies/cyber-resilience-act)).
+Selon la page ANSSI consultée le 21 octobre 2026, la transposition française est en cours et l'ensemble des textes est attendu ; un service de pré-enregistrement est déjà accessible ([MesServicesCyber](https://messervices.cyber.gouv.fr/nis2)). Cette indication doit être actualisée lors d'une décision et ne remplace pas l'examen des textes publiés.
 
-L'annexe I se lit en deux parties : les propriétés de sécurité du produit (sécurité par défaut, surface d'attaque réduite, mises à jour de sécurité installables automatiquement par défaut) et les processus exigés du fabricant : SBOM dans un format courant et lisible par machine couvrant au moins les dépendances de premier niveau, politique de divulgation coordonnée, point de contact pour les signalements, tests réguliers et diffusion gratuite des mises à jour de sécurité ([VamiSec](https://vamisec.com/fr/wissen/grc/eu-cyber-resilience-act)).
+L'ANSSI met à disposition ReCyF depuis le 17 mars 2026 comme document de travail, par défaut non obligatoire, dont les futurs assujettis peuvent se prévaloir ; cela ne constitue pas une garantie automatique de conformité ([ANSSI, NIS2](https://cyber.gouv.fr/reglementation/cybersecurite-systemes-dinformation/directives-nis-nis2-et-dispositif-saiv/directive-nis-2/)). Recommandation : l'utiliser pour préparer la cartographie, les écarts et les actions, en vérifiant les exigences propres aux catégories d'entités.
 
-### 10.4 CRA appliqué à votre développement assisté par IA
-
-Le CRA s'applique au produit, pas à la manière dont il a été écrit. Le code généré par IA n'est ni exonéré ni plus sévèrement traité : ce sont vos processus qui prouvent la conformité.
-
-| Exigence CRA (annexe I) | Conséquence pour le développement assisté par IA |
+| Exigence NIS2 documentée | Déclinaison proposée pour la chaîne IA |
 |---|---|
-| Développement sécurisé sur la base des risques | L'agent IA devient un outil du processus : il doit s'exécuter dans un pipeline qui applique vos règles (revue, scanners, tests) |
-| SBOM lisible par machine, dépendances de premier niveau | Vérifier automatiquement les dépendances proposées par l'IA (risque de paquets malveillants au nom proche) et générer le SBOM à chaque build |
-| Gestion des vulnérabilités et divulgation coordonnée | Toute vulnérabilité introduite par du code IA suit le même processus de gestion ; la trace des contributions IA facilite l'analyse d'impact |
-| Mises à jour de sécurité gratuites pendant la période de support | Dimensionner la maintenance des produits dont le code évolue plus vite grâce à l'IA |
-| Signalement 24 h / 72 h (depuis le 11 septembre 2026) | Une vulnérabilité activement exploitée dans un produit mis sur le marché déclenche l'obligation, même si le code est d'origine IA |
+| Gouvernance des risques, article 20 ([directive](https://eur-lex.europa.eu/eli/dir/2022/2555/oj/eng)) | Politique d'usage approuvée, responsabilités et revue périodique. |
+| Fournisseurs directs, article 21(2)(d) et 21(3) ([directive](https://eur-lex.europa.eu/eli/dir/2022/2555/oj/eng)) | Évaluer inférence, IDE, agents, forge et services associés. |
+| Développement et vulnérabilités, article 21(2)(e) ([directive](https://eur-lex.europa.eu/eli/dir/2022/2555/oj/eng)) | Appliquer au code généré les mêmes règles de sécurité, correction et divulgation. |
+| Continuité, accès et maîtrise des risques, article 21 ([directive](https://eur-lex.europa.eu/eli/dir/2022/2555/oj/eng)) | Sandbox, permissions, sauvegarde, reprise et contrôle des flux. |
 
-Points de vigilance :
-- la charge de signalement CRA s'applique aussi aux produits déjà mis sur le marché avant le 11 septembre 2026 ([CMS](https://cms.law/en/int/legal-updates/ready-respond-report-the-cyber-resilience-act-s-reporting-regime-is-here)) ;
-- les « stewards » de logiciels open source ne sont soumis au signalement qu'à partir du 11 décembre 2027 ([ENISA](https://www.enisa.europa.eu/news/the-cra-single-reporting-platform-is-launched)) ; si vous maintenez des dépôts open source utilisés dans des produits, clarifiez votre statut ;
-- si votre logiciel contient de l'IA, l'AI Act se superpose : les obligations GPAI s'appliquent depuis août 2025 et les pouvoirs d'exécution depuis le 2 août 2026 ([AI Act Service Desk](https://ai-act-service-desk.ec.europa.eu/fr/faq?combine=)), avec le report des systèmes à haut risque de l'annexe III au 2 décembre 2027 ([Cabinet Persée](https://cabinetpersee.com/blog/posts/ai-act-ce-qui-change-2026/)).
+Pour les incidents importants, l'article 23 prévoit notamment une alerte sous 24 heures, une notification sous 72 heures et un rapport final dans le mois suivant la notification, avec des règles particulières pour les incidents persistants et certains prestataires ([NIS2, article 23](https://eur-lex.europa.eu/eli/dir/2022/2555/oj/eng)). Recommandation : ne pas qualifier automatiquement toute fuite liée à un assistant d'incident NIS2 ; examiner l'entité concernée, les impacts et le déclencheur applicable.
 
-### 10.5 Ce que cela change concrètement
+### CRA : produit, vulnérabilités et période de support
 
-Ces deux textes renforcent plutôt qu'ils ne contredisent l'architecture proposée :
-- la classification N1/N2/N3 et la passerelle fournissent la documentation demandée par NIS2 (analyse de risques, traçabilité) et préparent les processus CRA (vulnérabilités, divulgation) ;
-- les règles de sécurité de la section 9 (SBOM, scanners, divulgation coordonnée, point de contact) sont directement alignées sur l'annexe I du CRA ;
-- la préférence pour des fournisseurs européens avec contrats vérifiés s'inscrit dans l'exigence NIS2 de sécurité de la chaîne d'approvisionnement ;
-- la journalisation des contributions IA dans la forge facilite les rapports de vulnérabilité : savoir quelles modifications sont d'origine IA accélère l'analyse d'impact.
+Le CRA s'applique aux produits avec éléments numériques dans son champ, selon le rôle et le mode de fourniture ; le traitement distant couvert répond à une définition précise et tous les SaaS ne relèvent pas automatiquement de ce règlement ([règlement 2024/2847, art. 3(2) et considérant 12](https://eur-lex.europa.eu/eli/reg/2024/2847/oj/eng)). Le code généré par IA n'est pas exonéré : le dossier doit porter sur le produit et les processus applicables.
 
-Actions recommandées : une politique d'usage de l'IA formellement approuvée par la direction, un inventaire documenté des fournisseurs et un exercice de notification. Malgré des délais initiaux proches, ne pas fusionner les analyses NIS2 et CRA : instruire séparément l'entité ou le produit concerné, l'événement déclencheur, les destinataires et les conditions du rapport final.
+| Date ou exigence | Repère vérifié |
+|---|---|
+| 11 juin 2026 | Application du chapitre IV sur les organismes d'évaluation de conformité ([article 71](https://eur-lex.europa.eu/eli/reg/2024/2847/oj/eng)). |
+| 11 septembre 2026 | Application de l'article 14 aux fabricants concernés ; lancement de la plateforme de signalement ([article 71](https://eur-lex.europa.eu/eli/reg/2024/2847/oj/eng), [ENISA](https://www.enisa.europa.eu/news/the-cra-single-reporting-platform-is-launched)). |
+| 11 décembre 2027 | Application générale du règlement, selon les dispositions transitoires ([articles 69 et 71](https://eur-lex.europa.eu/eli/reg/2024/2847/oj/eng)). |
+| Composants et SBOM | Format courant lisible par machine, couvrant au moins les dépendances de premier niveau ; le texte n'impose pas de ce fait une publication générale de tout le SBOM ([annexe I, partie II](https://eur-lex.europa.eu/eli/reg/2024/2847/oj/eng)). |
+| Mises à jour de sécurité | Diffusion sans retard et en principe gratuite, avec exception contractuelle B2B pour un produit sur mesure ([annexe I, partie II, point 8](https://eur-lex.europa.eu/eli/reg/2024/2847/oj/eng)). |
+| Support | En principe au moins cinq ans ; lorsque l'usage attendu du produit est inférieur, la période correspond à cet usage attendu, dans les conditions du texte ([article 13(8)](https://eur-lex.europa.eu/eli/reg/2024/2847/oj/eng)). |
 
-### Relier les preuves aux obligations sans inventer une certification
+Les délais de signalement doivent conserver leur point de départ :
 
-SPD-AI distingue conformité du produit, obligations de l'organisation et qualification de l'hébergement ; il présente le lien entre autorité d'acceptation et démonstration de conformité comme une hypothèse de mise en œuvre, non comme une prescription européenne nommant ce rôle ([SPD-AI, sections 7.3.2 et 7.3.5](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md)). Nos dossiers d'acceptation sont donc des pièces de preuve proposées, pas un certificat CRA ou NIS2.
-
-| Niveau à instruire | Question préalable | Pièces recommandées |
+| Événement CRA | Alerte et notification | Rapport final |
 |---|---|---|
-| Produit | Le produit et son mode de fourniture entrent-ils dans le champ du CRA ou d'autres textes sectoriels ? | Analyse de champ, risques, composants, tests, vulnérabilités et support |
-| Organisation | L'entité est-elle assujettie à NIS2, et selon quelle transposition ? | Gouvernance, risques, fournisseurs, continuité et notifications |
-| Données | Quels traitements et transferts doivent être examinés au titre du RGPD ? | Inventaire des données, sous-traitants, destinations, conservation et accès |
-| Hébergement | Quel service, quelle version et quel périmètre sont effectivement qualifiés ? | Certificat ou décision, périmètre, contrat et responsabilités |
-| Usage de l'IA | Utilise-t-on seulement un outil de développement, ou fournit-on aussi un système ou modèle d'IA ? | Analyse des rôles, usages, intégrations et obligations applicables |
+| Vulnérabilité activement exploitée | Sans retard injustifié, au plus tard 24 h puis 72 h après prise de connaissance ([art. 14(2)](https://eur-lex.europa.eu/eli/reg/2024/2847/oj/eng)) | Au plus tard 14 jours après disponibilité d'une mesure corrective ou d'atténuation ([art. 14(2)](https://eur-lex.europa.eu/eli/reg/2024/2847/oj/eng)). |
+| Incident grave ayant un impact sur la sécurité du produit | Sans retard injustifié, au plus tard 24 h puis 72 h après prise de connaissance ([art. 14(4)](https://eur-lex.europa.eu/eli/reg/2024/2847/oj/eng)) | Dans le mois suivant la notification d'incident ([art. 14(4)](https://eur-lex.europa.eu/eli/reg/2024/2847/oj/eng)). |
 
-Recommandation : ne pas traiter tout SaaS comme automatiquement soumis à toutes les obligations produit du CRA, ni toute entreprise qui utilise un assistant comme fournisseur de modèle GPAI. Faire valider les champs, exemptions, rôles et calendriers avant de transformer cette grille en exigences contractuelles.
+L'article 69 prévoit le traitement des produits antérieurs au 11 décembre 2027 et l'application des obligations de signalement aux produits concernés ; l'ancienneté n'est donc pas, à elle seule, une exonération de l'article 14 ([CRA, article 69](https://eur-lex.europa.eu/eli/reg/2024/2847/oj/eng)). Les obligations de signalement des stewards open source démarrent le 11 décembre 2027 dans le périmètre précisé par l'ENISA ; maintenir un dépôt ne suffit pas à établir ce statut ([ENISA](https://www.enisa.europa.eu/news/the-cra-single-reporting-platform-is-launched)).
 
-## 11. Ordres de grandeur économiques
+Recommandation : relier les exigences, composants, tests, modifications, vulnérabilités, correctifs et versions du produit. Ne pas fusionner les procédures NIS2 et CRA sous prétexte de délais initiaux proches : leurs champs, déclencheurs et responsabilités doivent être instruits séparément.
 
-Objectif de cette section : donner des ordres de grandeur, pas des devis. Les prix évoluent vite et les tarifs publics ne comprennent pas toujours la totalité des postes ; les enveloppes ci-dessous restent celles de la version précédente, sans actualisation tarifaire générale au 21 octobre.
+### AI Act : distinguer l'utilisateur d'outils et le fournisseur d'IA
 
-SPD-AI signale explicitement le TCO H100 et plusieurs données commerciales comme non vérifiés à leur source primaire ; l'alignement présent ne transforme pas ces estimations en données établies ([SPD-AI, sections 7.2.7 et H.2-H.3](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md)). Les configurations ne doivent pas être achetées sur cette seule base : confirmer modèle exact, licence, quantification, contexte, concurrence, moteur et débit par essai ou devis.
+La Commission confirme l'application des obligations GPAI depuis le 2 août 2025 et la date générale d'application du 2 août 2026, sous réserve des régimes et exceptions applicables ([Commission, AI Act](https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai)). Le simple usage d'un assistant de code ne transforme pas automatiquement son utilisateur en fournisseur de modèle GPAI.
 
-### 11.1 Le point de départ : le coût mémoire d'un modèle
+Le règlement modificatif 2026/1744 fixe le 2 décembre 2027 pour les dispositions visées concernant les systèmes à haut risque de l'annexe III et le 2 août 2028 pour ceux de l'annexe I ; il ne s'agit pas d'un report général de tout l'AI Act ([article 1, point 40](https://eur-lex.europa.eu/legal-content/FR/ALL/?uri=CELEX:32026R1744)). Le même texte remplace l'article 4 : fournisseurs et déployeurs doivent prendre des mesures pour favoriser la maîtrise de l'IA, sans devoir garantir un niveau spécifique par individu ([article 1, point 5](https://eur-lex.europa.eu/legal-content/FR/ALL/?uri=CELEX:32026R1744)).
 
-Ce qui dimensionne l'infrastructure, c'est la mémoire nécessaire aux poids et au contexte.
+Recommandation : documenter les usages, former les équipes selon les risques, puis analyser séparément les obligations si le logiciel livré contient lui-même un système d'IA. Ne pas déduire d'« open weight » l'ensemble des exemptions éventuellement prévues pour le libre et l'open source.
 
-| Modèle | Poids en 4 bits (ordre de grandeur) | Matériel minimal | Ordre de grandeur du coût |
-|---|---|---|---|
-| Qwen3.8 27B | environ 14 Go | une carte 24 Go | entrée de gamme |
-| Devstral 2 123B | environ 60 Go | 1 à 2 cartes 96 Go | palier intermédiaire |
-| GLM-5.3 753B | environ 380 Go | 8 GPU de 80 Go | palier serveur complet |
+## Ordres de grandeur économiques
 
-Les chiffres de poids sont des calculs (paramètres divisés par deux en 4 bits), avant mémoire de contexte et cache KV, qui peuvent sensiblement augmenter le besoin.
+Les prix publics suivants ont été vérifiés documentairement le 21 octobre 2026 et peuvent évoluer. Ils sont distincts des hypothèses de charge, des enveloppes d'investissement et des résultats de performance, qui restent à mesurer.
 
-### 11.2 Scénario A : API européennes uniquement
+### Mémoire : un ordre de grandeur, pas un matériel minimal
 
-C'est le démarrage le plus simple, sans investissement.
+| Modèle | Base de calcul | Poids théoriques en 4 bits, avant surcoûts |
+|---|---|---:|
+| Qwen3.8-27B | Environ 27 à 28 milliards de paramètres selon le périmètre retenu ([fiche Qwen](https://huggingface.co/Qwen/Qwen3.8-27B)) | Environ 13,5 à 14 Go |
+| Devstral 2 123B | 123 milliards annoncés dans l'identifiant de version ([éditeur](https://huggingface.co/mistralai/Devstral-2-123B-Instruct-2512/raw/main/LICENSE), [catalogue de déploiement](https://www.scaleway.com/en/docs/generative-apis/reference-content/supported-models/)) | Environ 61,5 Go |
+| GLM-5.3 | 753 milliards de paramètres ([fiche Z.ai](https://huggingface.co/zai-org/GLM-5.3)) | Environ 376,5 Go |
 
-Repère de prix : mistral-medium-3.5-128b chez Scaleway est affiché à 1,50 € par million de tokens en entrée et 7,50 € en sortie ([Scaleway](https://www.scaleway.com/en/generative-apis/)). OVHcloud facture aussi au million de tokens, sans frais fixes ([OVHcloud](https://www.ovhcloud.com/en/public-cloud/ai-endpoints/)).
+Ces chiffres sont des calculs décimaux de paramètres multipliés par un demi-octet, pas des mesures de mémoire réelle. Ajouter métadonnées de quantification, composants, moteur, cache de contexte, traitements temporaires et sessions concurrentes ; vérifier également que le format retenu fonctionne avec le moteur choisi.
 
-Exemples de calcul, et non consommation mesurée par développeur : hypothèse de 20 jours d'utilisation par mois, avec les tarifs de référence hérités de 1,50 €/million en entrée et 7,50 €/million en sortie, sans remise ni cache.
+La fiche GLM ne fixe pas un minimum de huit H100 ; Scaleway rattache son déploiement dédié à B300-SXM-8 ([Z.ai](https://huggingface.co/zai-org/GLM-5.3), [Scaleway](https://www.scaleway.com/en/docs/generative-apis/reference-content/supported-models/)). Recommandation : ne pas acheter une configuration sur la seule division du nombre de paramètres par la mémoire d'une carte.
 
-| Hypothèse de charge | Entrée par jour | Sortie par jour | Calcul mensuel |
-|---|---|---|---|
-| Ponctuelle | 0,5 million | 0,05 million | 22,50 € |
-| Régulière | 2 millions | 0,2 million | 90 € |
-| Agentique soutenue | 5 millions | 0,5 million | 225 € |
-| Très soutenue | 20 millions | 2 millions | 900 € |
+### Scénario A : API européennes
 
-Ces exemples donneraient 112,50 à 4 500 € par mois pour cinq utilisateurs identiques ; ils corrigent l'ancien tableau qui ne séparait pas entrées et sorties. Le budget pilote de 250 à 3 000 € reste une enveloppe choisie, pas une borne maximale : mesurer les nouvelles tentatives, lectures répétées, sorties longues et appels d'outils.
+Les prix serverless suivants sont affichés hors taxes, par million de tokens ; ils ne démontrent pas une qualité équivalente entre modèles ([tarif Scaleway](https://www.scaleway.com/en/pricing/model-as-a-service/)). Le calcul illustratif retient 100 millions de tokens d'entrée et 10 millions de sortie par personne et par mois, sans remise ni cache.
 
-Ce scénario ne couvre pas le niveau N3 (sensible) tant que le contrat n'a pas été vérifié, mais il suffit pour N1 et N2.
+| Modèle | Entrée par million | Sortie par million | Calcul mensuel par personne | Calcul pour cinq personnes identiques |
+|---|---:|---:|---:|---:|
+| Mistral Medium 3.5 | 1,50 € ([tarif](https://www.scaleway.com/en/pricing/model-as-a-service/)) | 7,50 € ([tarif](https://www.scaleway.com/en/pricing/model-as-a-service/)) | 225 € | 1 125 € |
+| GLM-5.3 | 1,80 € ([tarif](https://www.scaleway.com/en/pricing/model-as-a-service/)) | 5,50 € ([tarif](https://www.scaleway.com/en/pricing/model-as-a-service/)) | 235 € | 1 175 € |
+| Qwen3.8-27B | 0,60 € ([tarif](https://www.scaleway.com/en/pricing/model-as-a-service/)) | 3,30 € ([tarif](https://www.scaleway.com/en/pricing/model-as-a-service/)) | 93 € | 465 € |
+| DeepSeek-V4.1-Flash | 0,60 € ([tarif](https://www.scaleway.com/en/pricing/model-as-a-service/)) | 1,80 € ([tarif](https://www.scaleway.com/en/pricing/model-as-a-service/)) | 78 € | 390 € |
 
-### 11.3 Scénario B : location de GPU dans un cloud européen
+Hypothèse de cadrage : réserver 250 à 3 000 € par mois de consommation API pour une équipe pilote, puis ajuster selon les traces réelles. Ce n'est ni une borne maximale, ni le budget complet du projet ; les tentatives, contextes répétés, sorties de raisonnement et outils associés peuvent le modifier.
 
-Pour déployer vos propres modèles open weight (niveau N3) sans acheter de matériel.
+### Scénario B : GPU loués et inférence dédiée
 
-Tarifs publics constatés en octobre 2026 :
+Les instances GPU et l'inférence managée sont des produits différents ; les prix sont publiés sur deux pages distinctes ([GPU Scaleway](https://www.scaleway.com/en/pricing/gpu/), [inférence dédiée Scaleway](https://www.scaleway.com/en/pricing/model-as-a-service/)). Les équivalents mensuels ci-dessous sont recalculés sur 730 heures.
 
-| Fournisseur | Offre | Prix constaté | Coût mensuel à plein temps (730 h) |
-|---|---|---|---|
-| Scaleway | L4 24 Go | 0,79 €/h ([Scaleway](https://www.scaleway.com/en/pricing/gpu/)) | environ 575 € |
-| Scaleway | 1x H100 80 Go | environ 2,7 à 3,3 €/h ([Qovery](https://www.qovery.com/blog/gpu-pricing-comparison-method-aws-gcp-azure-scaleway-2026), [GPU Finder](https://gpufinder.dev/providers/scaleway)) | environ 2 000 à 2 400 € |
-| OVHcloud | 1x H100 80 Go | 2,80 à 2,99 €/h ([OVHcloud](https://corporate.ovhcloud.com/en/newsroom/news/ai-offer/)) | environ 2 000 à 2 200 € |
+| Offre | Prix horaire HT | Calcul à 730 h |
+|---|---:|---:|
+| Instance L4-1-24G | 0,79 €/h ([GPU](https://www.scaleway.com/en/pricing/gpu/)) | 576,70 €/mois |
+| Inférence dédiée L4-1-24G | 0,93 €/h ([managé](https://www.scaleway.com/en/pricing/model-as-a-service/)) | 678,90 €/mois |
+| Inférence dédiée H100-1-80G | 3,40 €/h ([managé](https://www.scaleway.com/en/pricing/model-as-a-service/)) | 2 482 €/mois |
+| Inférence dédiée H100-SXM-2-80G | 7,95 €/h ([managé](https://www.scaleway.com/en/pricing/model-as-a-service/)) | 5 803,50 €/mois |
+| Inférence dédiée H100-SXM-8-80G | 30,06 €/h ([managé](https://www.scaleway.com/en/pricing/model-as-a-service/)) | 21 943,80 €/mois |
 
-Interprétation pratique :
-- un modèle compact type Qwen3.8 27B tient sur une L4 ou une carte 48 Go : quelques centaines d'euros par mois ;
-- un modèle 123B ou plusieurs sessions d'agents exigent plutôt 1 à 2 H100 : 2 000 à 5 000 € par mois ;
-- le GLM-5.3 complet (753B) exige un nœud 8 GPU : environ 28 $/h, soit 15 000 à 20 000 € par mois ([GPU Finder](https://gpufinder.dev/gpu/h100/8x)).
+Ce tableau ne certifie aucun modèle sur une configuration et ne comprend pas nécessairement stockage, réseau ou intégration. Une enveloppe pilote de 600 à 6 000 € par mois est une hypothèse à adapter ; elle ne couvre pas un grand nœud de huit H100 à temps plein aux tarifs ci-dessus.
 
-Hypothèse de calcul : 8 heures par jour pendant 20 jours correspondent à 160 heures, soit environ 22 % de 730 heures, et non un tiers du mois. L'économie n'est réalisable que si le fournisseur arrête effectivement la facturation du GPU entre les sessions ; stockage, réservations, redémarrages et minimums contractuels restent à ajouter.
+À raison de 8 heures pendant 20 jours, 160 heures représentent environ 21,9 % de 730 heures. Une économie n'est obtenue que si la ressource peut être libérée et sa facturation arrêtée ; les agents peuvent aussi continuer de travailler hors des heures des développeurs.
 
-### 11.4 Scénario C : hébergement dans un cloud qualifié SecNumCloud
+Le prix OVHcloud de 2,80 €/h provient d'un communiqué de janvier 2024 ; la page internationale actuelle consultée affiche 2,99 dollars pour h100-380, pas 2,99 euros ([communiqué historique](https://corporate.ovhcloud.com/en/newsroom/news/ai-offer/), [tarif actuel consulté](https://www.ovhcloud.com/en/public-cloud/prices/)). Le prix actuel en euros, dans la région retenue, reste à confirmer avant comparaison.
 
-C'est une option d'hébergement à examiner pour le niveau N3 lorsque la qualification est exigée. La location d'une infrastructure, la colocation d'un matériel acheté et un service d'inférence managé sont trois prestations différentes : demander un devis et un périmètre de responsabilité propres à chacune, sans supposer que le matériel ou l'application hérite d'une qualification.
+### Scénario C : hébergement avec exigence SecNumCloud
 
-Repère hérité, à confirmer : une source secondaire indique 6 141,60 €/mois pour un serveur 2x H100 80 Go avec engagement de 24 mois ; la disponibilité et le périmètre de qualification de cette offre précise n'ont pas été revérifiés ici ([Pipook](https://pipook.fr/outil/cloud-temple/)). Le montant OpenShift de 26 954,41 € repris auparavant est exclu du calcul, faute de clarification de l'unité de facturation, des services inclus et de l'engagement ; demander un devis détaillé au fournisseur ([Cloud Temple, tarifs publics](https://www.cloud-temple.com/nos-tarifs-publics/)).
+Cloud Temple publie les prix suivants, avec leurs unités et engagements ; ces montants ne suffisent pas à démontrer le rattachement de toute prestation associée au périmètre qualifié ([tarifs publics](https://www.cloud-temple.com/nos-tarifs-publics/)). La location d'infrastructure, la colocation d'un matériel acheté et l'inférence managée doivent faire l'objet de devis et responsabilités distincts.
 
-La prime de 30 à 50 % évoquée dans la version précédente est retirée comme conclusion de marché : nous ne disposons pas ici de devis comparables à périmètre, engagement, disponibilité et exploitation identiques. Recommandation : comparer des services complets et leur qualification réelle, pas seulement le prix divisé par le nombre de GPU.
+| Configuration publiée | Prix HT par mois | Engagement | Total arithmétique des seules mensualités |
+|---|---:|---|---:|
+| BM:V3:PERF5, 2 H100 80 Go, 512 Go RAM | 6 141,60 € ([tarif](https://www.cloud-temple.com/nos-tarifs-publics/)) | 24 mois ([tarif](https://www.cloud-temple.com/nos-tarifs-publics/)) | 147 398,40 € |
+| OpenShift, 3 workers avec 2 H100 chacun | 26 954,41 € ([tarif](https://www.cloud-temple.com/nos-tarifs-publics/)) | 24 mois ([tarif](https://www.cloud-temple.com/nos-tarifs-publics/)) | 646 905,84 € |
 
-Autres options qualifiées à étudier : S3NS et Bleu, les offres « trusted cloud » avec les hyperscalers, avec la réserve citée plus haut sur les piles logicielles américaines ([Nexthop](https://www.nexthop.fr/secnumcloud/)). OVHcloud et Scaleway proposent aussi des offres avec des niveaux de garantie intermédiaires : à vérifier offre par offre, car la qualification SecNumCloud s'applique à des services précis, pas à tout le catalogue d'un fournisseur.
+Le tableau OpenShift est indiqué hors licence OpenShift ; il faut clarifier les autres composants et prestations nécessaires ([tarifs Cloud Temple](https://www.cloud-temple.com/nos-tarifs-publics/)). Le montant de 26 954,41 € est donc une mensualité pour six GPU et des workers, pas le coût total de deux GPU sur 24 mois.
 
-Ordre de grandeur pour une équipe de 5 à 10 développeurs avec du code sensible : 6 000 à 10 000 € par mois pour un serveur 2x H100 en SecNumCloud, plus les frais de mise en place et l'exploitation.
+La page affiche également une grille LLMaaS avec une unité d'un million de tokens : 1,80 € pour l'entrée, 8 € pour la sortie et 8 € pour le raisonnement, dans une colonne libellée « € HT/mois » ([grille LLMaaS](https://www.cloud-temple.com/nos-tarifs-publics/)). Recommandation : obtenir le mode de décompte, le modèle réel, les éventuels doubles comptes de raisonnement et le périmètre de service avant d'en déduire une facture.
 
-### 11.5 Scénario D : achat de matériel (on-premise)
+Hypothèse budgétaire : retenir environ 6 100 à 10 000 € par mois pour étudier une solution autour du serveur deux H100, avant confirmation des services inclus. Le nombre de développeurs ne démontre pas la capacité de ce serveur ; la charge et la concurrence doivent être testées.
 
-Trois paliers d'achat, prix constatés en octobre 2026 :
+### Scénario D : achat et exploitation
 
-| Palier | Configuration | Usage | Ordre de grandeur |
-|---|---|---|---|
-| Compact | 1 carte RTX PRO 6000 Blackwell 96 Go | Qwen3.8 27B en 4/8 bits, sessions courtes | 18 000 à 23 000 € la carte ([Idealo](https://www.idealo.fr/prix/207353877/nvidia-rtx-pro-6000-blackwell-server-edition.html), [Sabre PC](https://www.sabrepc.com/900-2G153-0000-000-NVIDIA-S8845543)) |
-| Intermédiaire | Serveur 2 à 4 cartes 96 Go | Devstral 2 123B, plusieurs sessions | 50 000 à 120 000 € (serveur 8 cartes à partir de 165 000 $, [Blackwell Cloud](https://www.blackwellcloud.com/nvidia-rtx-pro-6000-gpu-servers)) |
-| Complet | Serveur HGX 8x H100 | GLM-5.3 complet en 4 bits | 250 000 à 320 000 $, environ 285 000 $ en prix intégré ([Mercatus AI](https://www.mercatus-ai.com/blog/h100-server-price), [CloudZero](https://www.cloudzero.com/blog/h100-gpu-cost/)) |
+La fourchette européenne de 18 000 à 23 000 € pour une RTX PRO 6000 Server Edition n'a pas été confirmée : Idealo ne présente pas d'offre, et SabrePC affiche un prix en dollars avec des précisions fiscales et de contenu à clarifier ([Idealo](https://www.idealo.fr/prix/207353877/nvidia-rtx-pro-6000-blackwell-server-edition.html), [SabrePC](https://www.sabrepc.com/900-2G153-0000-000-NVIDIA-S8845543)). Les prix fermes pour un serveur adapté restent à obtenir auprès d'un intégrateur.
 
-Ne pas oublier le coût complet (TCO) :
+Les enveloppes suivantes sont des hypothèses de cadrage en euros, pas des prix de marché validés ni des conversions de prix américains. Elles servent uniquement à distinguer les paliers d'engagement.
 
-| Poste | Ordre de grandeur annuel |
-|---|---|
-| Électricité, petite config (2 cartes, usage intermittent) | 400 à 1 000 € (30 à 80 € par mois selon usage, [LocalIA](https://getlocalia.com/blog/combien-coute-serveur-ia-pme-2026)) |
-| Électricité, nœud 8x H100 (environ 10 kW) | 10 000 à 18 000 € selon le tarif ([AI Intel Report](https://aiintelreport.com/enterprise-ai/on-premise-ai-cost-tco)) |
-| Refroidissement | 25 à 40 % de l'électricité en plus selon le PUE ([AI Intel Report](https://aiintelreport.com/enterprise-ai/on-premise-ai-cost-tco)) |
-| Colocation si vous n'avez pas de local technique | 12 000 à 24 000 $ ([AI Intel Report](https://aiintelreport.com/enterprise-ai/on-premise-ai-cost-tco)) |
-| Exploitation | au moins 0,5 ETP qualifié ([AI Intel Report](https://aiintelreport.com/enterprise-ai/on-premise-ai-cost-tco)) |
+| Palier de budget proposé | Enveloppe initiale hypothétique | Condition préalable |
+|---|---:|---|
+| Station ou petit serveur | 25 000 à 40 000 € | Modèle compact validé, quantification et concurrence mesurées. |
+| Serveur intermédiaire multi-GPU | 50 000 à 120 000 € | Besoin de mémoire, débit, support et disponibilité démontré. |
+| Grand nœud GPU | 250 000 à 500 000 € ou davantage selon devis | Configuration complète validée ; ne garantit pas l'exécution de GLM-5.3 ou d'un futur modèle. |
 
-Une estimation de praticiens citée dans la version précédente situe le TCO sur trois ans d'un nœud 8x H100 entre 712 000 et 948 000 dollars, mais sa méthode et ses hypothèses n'ont pas été confirmées ; elle ne doit pas être qualifiée de modélisation indépendante validée ([AI Intel Report](https://aiintelreport.com/enterprise-ai/on-premise-ai-cost-tco), [réserve explicite dans SPD-AI, annexe H](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md)). Ne pas la comparer directement à une location en euros sans harmoniser change, durée, service, disponibilité et coûts humains.
+Les fourchettes de 250 000 à 320 000 dollars pour certains serveurs huit H100 apparaissent dans des analyses secondaires, sans devis fournisseur attaché et comparable au projet ([Mercatus](https://www.mercatus-ai.com/blog/h100-server-price), [CloudZero](https://www.cloudzero.com/blog/h100-gpu-cost/)). Elles ne valident pas à elles seules les enveloppes en euros du tableau.
 
-### 11.6 Seuil de rentabilité achat contre location
+Le coût complet proposé doit couvrir :
 
-Un seuil de 12 à 18 mois ne peut pas être retenu sans le coût complet et un service comparable. Le calcul recommandé est :
+- **Matériel et financement** : serveur, réseau, stockage, intégration, garantie, pièces et renouvellement.
+- **Énergie et locaux** : puissance moyenne mesurée, heures de fonctionnement, refroidissement et contraintes du site.
+- **Exploitation** : installation, mises à jour, surveillance, incidents, tests et support.
+- **Continuité** : sauvegarde, restauration, indisponibilité, capacité de secours et reprise.
+- **Évolution** : moteurs, formats, modèles, licences et compétences.
+
+Exemple de calcul, sans tarif énergétique de marché revendiqué : 10 kW moyens pendant 8 760 heures, à 0,20 €/kWh, donnent 17 520 € par an avant refroidissement. Avec un facteur hypothétique de 1,3, le total énergétique serait de 22 776 € ; ne pas ajouter ce poste à une colocation qui l'inclut déjà.
+
+### TCO H100 : un scénario retrouvé, pas une étude indépendante
+
+La fourchette de 712 000 à 948 000 dollars sur trois ans provient d'un scénario Spheron repris par AI Intel Report ; l'original détaille 711 950 à 947 730 dollars, notamment avec 0,5 ETP, une exploitation continue et des hypothèses de coûts américaines ([source originale](https://www.spheron.network/blog/llm-inference-on-premise-vs-cloud/), [article de reprise](https://aiintelreport.com/enterprise-ai/on-premise-ai-cost-tco)). Spheron est lui-même fournisseur de GPU cloud et compare sa propre offre : ce résultat ne doit pas être présenté comme une validation indépendante du coût local.
+
+Recommandation : reconstruire le TCO en euros sur le même périmètre que la location, sans imposer 0,5 ETP ou un taux d'utilisation universel. Ne pas compter à la fois l'achat et son amortissement comme deux coûts du matériel.
+
+### Achat contre location : calculer plutôt qu'annoncer un seuil
+
+La formule simplifiée proposée est :
 
 \[
 \text{Délai de retour en mois} =
@@ -498,270 +364,260 @@ Un seuil de 12 à 18 mois ne peut pas être retenu sans le coût complet et un s
 {\text{location mensuelle évitée} - \text{coûts mensuels internes supplémentaires}}
 \]
 
-Si le dénominateur est nul ou négatif, il n'y a pas de retour financier dans ce modèle. Le calcul doit aussi intégrer le risque d'obsolescence, la disponibilité, le support et la valeur de la flexibilité, même si ces éléments ne tiennent pas tous dans cette formule simplifiée.
+Avec des hypothèses de 50 000 € investis, 2 300 €/mois de location comparable évitée et 800 €/mois de coûts internes supplémentaires, le résultat est d'environ 33 mois. Si le dénominateur est nul ou négatif, ce modèle ne donne pas de retour financier.
 
-Exemple purement illustratif : un investissement complet de 50 000 €, une location comparable évitée de 2 300 €/mois et 800 €/mois de coûts internes supplémentaires donnent environ 33 mois, pas 12 à 18. Si la location peut être limitée à 160 heures par mois, l'équivalent proportionnel de 2 300 € pour 730 heures est environ 504 €/mois ; il devient alors inférieur aux 800 € de charges internes de cet exemple.
+Cette formule ne représente pas à elle seule l'obsolescence, le risque, la disponibilité et la flexibilité. Recommandation : tester plusieurs scénarios d'usage réel, de prix et de renouvellement, plutôt que retenir un seuil général de 12 à 18 mois.
 
-Recommandation : mesurer les heures facturées et l'utilisation effective du GPU, mais aussi les files d'attente, le contexte et les pointes. Une machine allumée toute la journée n'est pas nécessairement utilisée efficacement, et la présence de développeurs ne mesure pas la durée de travail des agents.
+### Récapitulatif budgétaire
 
-### 11.7 Récapitulatif des quatre scénarios
+| Option | Repère proposé | Statut du montant | Décision à prendre |
+|---|---|---|---|
+| API | 250 à 3 000 €/mois pour un pilote | Enveloppe hypothétique ; tarifs unitaires documentés plus haut | Volume, qualité, artefacts autorisés et contrats. |
+| GPU loués | 600 à 6 000 €/mois pour un pilote limité | Enveloppe hypothétique ; hors grand nœud huit GPU à temps plein | Infrastructure brute ou service managé, moteur et exploitation. |
+| Offre avec exigence SecNumCloud | Environ 6 100 à 10 000 €/mois autour d'un serveur deux H100 | Hypothèse s'appuyant sur une ligne publique, hors compléments à préciser | Périmètre qualifié, engagement, frais et capacité. |
+| Achat | 25 000 à 500 000 € ou davantage selon le palier, puis exploitation | Hypothèses de cadrage à remplacer par des devis | Charge stable, compétences, support, risques et financement. |
 
-Pour une équipe de 5 développeurs, ordres de grandeur par mois :
+Commencer par le scénario autorisé pour les données et artefacts, pas systématiquement par une API. Ni un prix bas ni la présence d'une région UE ne dispense de l'analyse de sécurité.
 
-| Scénario | Investissement initial | Coût mensuel | Couverture N3 | Quand le choisir |
-|---|---|---|---|---|
-| A. API européennes | quasi nul | 250 à 3 000 € | non (sauf contrat vérifié) | démarrage, mesure, N1/N2 |
-| B. GPU loué européen | quasi nul | 500 à 5 000 € | possible après analyse de risque et contrat ; pas de qualification présumée | charge variable, périmètre autorisé |
-| C. SecNumCloud | frais de mise en place | 6 000 à 10 000 € | sous réserve du périmètre qualifié et des autres exigences applicables | exigence de qualification justifiée |
-| D. Achat on-prem | 25 000 à 300 000 € + TCO | électricité et exploitation | sous réserve des contrôles et de la capacité d'exploitation | charge stable et forte, mesurée |
-
-Lecture : commencer par le scénario autorisé pour les artefacts réellement traités, pas systématiquement par une API. Le scénario B n'est pas autorisé par défaut pour N3 ; C doit correspondre à une exigence justifiée et à un périmètre vérifié ; D exige des mesures et une capacité d'exploitation.
-
-### Financer la preuve, la transmission et la maintenance
-
-SPD-AI recommande de planifier ensemble les capacités humaines et IA, y compris le renforcement des tests, la refactorisation et les compétences ; il distingue le financement d'un produit industrialisé du coût souvent invisible des outils métier ([SPD-AI, sections 7.2.5 et 7.2.6](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md)). Recommandation : prévoir des lignes budgétaires distinctes pour ces activités et une règle de reprise quand un prototype devient partagé ou critique.
-
-Exemple de sensibilité, sans tarif de marché revendiqué : pour cinq personnes, consacrer deux heures par semaine et par personne à la preuve et à la transmission représente environ 40 heures par mois sur une base de quatre semaines. À un coût interne complet hypothétique de 80 €/h, cela représente 3 200 €/mois, à rendre visible même si les salaires sont déjà budgétés ; ne pas l'ajouter une seconde fois au budget global de l'équipe.
-
-## 12. Deux scénarios dans un cadre souverain
+## Deux scénarios : création et migration
 
 ### État de l'art et niveau de preuve
 
-Les essais sur l'assistance au code ne mesurent pas tous les mêmes activités : l'étude sur 4 867 développeurs rapporte environ 26 % de tâches terminées en plus dans ses contextes, tandis que l'essai METR de début 2025 avait mesuré un ralentissement de 19 % chez des développeurs expérimentés ; la mise à jour de février 2026 ne permet pas d'estimer solidement l'effet des outils les plus récents ([SSRN](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4945566), [METR](https://metr.org/blog/2026-02-24-uplift-update/)). Ces résultats ne justifient donc ni un multiplicateur global de productivité ni une réduction automatique des effectifs d'un programme de migration.
+L'étude sur 4 867 développeurs rapporte 26,08 % de tâches terminées en plus dans trois expérimentations, avec une incertitude statistique ; elle ne mesure pas un gain identique sur tout l'effort d'une migration ([SSRN](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4945566)). METR avait mesuré un ralentissement de 19 % dans son essai de début 2025 et juge son suivi de février 2026 insuffisant pour estimer solidement l'effet actuel des outils récents ([METR](https://metr.org/blog/2026-02-24-uplift-update/)).
 
-SPD-AI distingue la spécification pour guider, vérifier et transmettre une solution de la découverte qui sert à choisir quoi construire ; il présente le spec-driven development comme une approche à évaluer, non comme une méthode universelle démontrée supérieure ([SPD-AI, sections 3.2 et 4.2](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md)). Nous retirons par conséquent l'affirmation d'une convergence générale du secteur et le nombre d'étoiles GitHub utilisé auparavant comme indice de maturité : l'adoption d'un outil ne prouve pas la qualité des produits livrés.
+Les fournisseurs décrivent des outils d'analyse, d'extraction, de transformation et de comparaison, notamment AWS Transform et Google Dual Run ; ces descriptions ne démontrent pas un résultat sur tout patrimoine ni dans une chaîne souveraine équivalente ([AWS](https://aws.amazon.com/blogs/migration-and-modernization/tackling-large-mainframe-portfolio-with-agentic-ai-and-aws-transform/), [Google Cloud](https://cloud.google.com/blog/products/infrastructure-modernization/mainframe-migration-and-modernization-with-ai)). Recommandation : les utiliser comme repères fonctionnels, puis mesurer une chaîne autorisée sur un lot représentatif.
 
-Les fournisseurs décrivent des outils d'analyse, d'extraction de règles, de transformation et de comparaison : AWS pour Transform et Google pour la modernisation mainframe et Dual Run ; ces capacités annoncées ne constituent pas une mesure indépendante de leurs gains sur tout patrimoine ([AWS](https://aws.amazon.com/blogs/migration-and-modernization/tackling-large-mainframe-portfolio-with-agentic-ai-and-aws-transform/), [Google Cloud](https://cloud.google.com/blog/products/infrastructure-modernization/mainframe-migration-and-modernization-with-ai)). Recommandation : les utiliser comme repères fonctionnels pour un banc d'essai, pas comme preuve qu'une chaîne souveraine reproduira leurs performances.
-
-Le cas historique Amadeus fournit un ordre de grandeur de transformation : environ 2 000 personnes-années, plus de 400 ingénieurs au pic et l'arrêt du dernier mainframe fin 2018 selon sa rétrospective ([Amadeus](https://amadeus.com/en/blog/articles/celebrating-one-year-fully-open-systems)). La fourchette de 20 à 40 % d'effort évité avec l'IA est, dans ce guide, une hypothèse de sensibilité issue de notre travail précédent, sans validation empirique pour Amadeus ; SPD-AI la signale également comme non établie dans son annexe H ([SPD-AI, sections 6.1.3 et H.2](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md)).
+Le développement piloté par des spécifications, ou SDD, est ici une méthode proposée : versions, règles, décisions et critères orientent la génération et la vérification. Il ne remplace pas la découverte du problème à résoudre et n'est pas présenté comme une méthode universelle démontrée supérieure.
 
 ### Créer un logiciel souverain from scratch
 
-Hypothèse de travail : un nouveau produit logiciel (par exemple une plateforme de gestion énergétique), une équipe de 5 développeurs, un horizon de 18 à 24 mois.
+Hypothèse de travail : une équipe de cinq développeurs, un nouveau produit logiciel et un horizon de 18 à 24 mois. L'absence de code ancien ne dispense pas de classifier les règles propriétaires, données et spécifications dès le départ.
 
-Créer sans existant évite certaines contraintes d'héritage, mais n'exclut ni des règles propriétaires, ni des données personnelles, ni des exigences industrielles sensibles ; SPD-AI demande une classification dès le premier jour ([SPD-AI, section 6.1.1](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md)). Recommandation : commencer par la finalité, les droits sur les données et les critères d'acceptation, pas par l'achat d'un modèle.
-
-| Étape | Pratique recommandée | Lien souveraineté et conformité |
+| Étape | Pratique proposée | Preuve ou décision attendue |
 |---|---|---|
-| Découverte | Vérifier besoin, usages et solutions alternatives ; un prototype sert à apprendre | Classifier les entretiens et données ; ne pas confondre prototype et produit |
-| Spécification | Règles approuvées, décisions versionnées et critères d'acceptation | Contribution au dossier de conformité, pas preuve suffisante à elle seule |
-| Génération | Agents configurables, modèles et outils explicitement autorisés | Vérifier tous les flux, la licence et les versions |
-| Revue | Acceptations technique, métier, puis produit et exploitation | Scanners, preuves indépendantes et décideurs identifiés |
-| Exécution des agents | Sandbox, secrets hors contexte et sorties réseau filtrées | Réduire les risques, sans prétendre les supprimer |
-| Exploitation | Support, surveillance, restauration et transfert à un autre mainteneur | Vérifier la continuité, pas seulement la première livraison |
+| Découverte | Vérifier besoin, utilisateurs et alternatives | Décider ce qui mérite un produit, pas seulement un prototype. |
+| Spécification | Approuver règles, exceptions et critères | Distinguer choix produit et solution technique. |
+| Génération | Autoriser les agents, modèles et destinations | Relier les modifications à des exigences. |
+| Revue | Séparer les trois acceptations | Consigner preuves, réserves et responsabilités. |
+| Livraison | Tester sécurité, reprise et exploitation | Autoriser la mise à disposition du produit. |
+| Apprentissage | Observer usage, défauts et maintenance | Réviser le produit et la documentation. |
 
-La génération peut accélérer certains lots, mais nous ne retenons plus l'hypothèse d'une part de travail « maximale » automatiquement accélérable : elle dépend du domaine, de la nouveauté et de la vérifiabilité, comme le distingue [SPD-AI, sections 2.2 et 5.2](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md). Recommandation : traiter séparément conformité aux critères, justesse des règles, utilité pour les utilisateurs et capacité de maintenance.
+Le gain de génération ne doit pas être présumé maximal : sa valeur dépend de la nouveauté, du domaine, de la vérifiabilité et des reprises. Recommandation : mesurer séparément vitesse de réalisation, correction métier, utilité et capacité d'un autre mainteneur à reprendre le produit.
 
-Hypothèse budgétaire : reprendre l'enveloppe API de 250 à 3 000 € par mois pour le pilote, soit 4 500 à 54 000 € sur 18 mois ou 6 000 à 72 000 € sur 24 mois, sans la présenter comme un devis ni comme le budget du produit. Ajouter équipe, contexte, évaluations, plateforme, sécurité et exploitation ; la revue ne doit pas être supposée dominante sans mesure.
+Une enveloppe API hypothétique de 250 à 3 000 €/mois représente 4 500 à 54 000 € sur 18 mois, ou 6 000 à 72 000 € sur 24 mois. Ajouter l'équipe, la préparation du contexte, les tests, la sécurité, la plateforme et l'exploitation ; ce calcul n'est pas le budget complet du produit.
 
-Si un artefact est N3 dès le départ, prévoir immédiatement une exécution interne ou une offre autorisée pour ce niveau. La location peut aussi se justifier par le débit, la latence, la disponibilité ou le coût mesuré, pas uniquement par la confidentialité.
-
-Risques à traiter dans le pilote :
-- dépendance à un agent ou à un format de spec propriétaire : garder les specs en Markdown simple et portable ;
-- surestimation des gains : appliquer le banc d'essai de la section 7 avant de dimensionner l'équipe ;
-- compréhension : vérifier qu'une autre personne peut expliquer une règle et faire évoluer le produit ;
-- sécurité et conformité : définir les obligations selon le produit, le rôle de l'entreprise et les dates applicables, sans considérer la présence ou l'absence de SDD comme un verdict juridique.
+Si un artefact est sensible dès le départ, l'environnement autorisé doit être disponible immédiatement. La location dédiée peut aussi se justifier par le débit, la latence, la disponibilité ou le coût mesuré, pas uniquement par la confidentialité.
 
 ### Migrer un gros logiciel
 
-Hypothèse de travail : un système critique de plusieurs millions de lignes (architecture de type Amadeus), en exploitation continue, avec exigences transactionnelles fortes.
+Hypothèse de travail : plusieurs millions de lignes, une activité continue et des exigences transactionnelles fortes. La découverte vise autant la connaissance métier et les dépendances que le code à remplacer.
 
-Le patrimoine peut contenir des règles métier sensibles, mais l'ancienneté ne suffit pas à classer tous ses artefacts en N3 ; une spécification cible peut, inversement, révéler autant que le code source, selon [SPD-AI, sections 5.1.5 et 6.1.2](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md). Recommandation : classifier avant analyse le code, les binaires, captures, journaux, extractions et données de comparaison, puis conserver la classification dans les livrables dérivés.
+Classifier les sources et les dérivés : code, binaires, interfaces, captures, données, journaux, index, règles extraites et spécifications. Le comportement cible n'est pas automatiquement moins sensible que l'existant.
 
-Le cycle recommandé reprend les huit phases de SPD-AI et ajoute, pour chacune, une décision et une preuve attendue ; aucun niveau N1/N2/N3 n'est attribué automatiquement à une phase ([SPD-AI, section 6.1.4](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md)). Le tableau est une grille de travail à adapter au domaine et aux risques.
-
-| Phase | Contribution de l'IA | Décision humaine | Preuve attendue |
+| Phase | Contribution possible de l'IA | Décision humaine | Preuve attendue |
 |---|---|---|---|
-| Découverte | Cartographie, dépendances et lignée des données | Confirmer le périmètre, les droits et les inconnues | Carte de l'existant et sources inspectées |
-| Extraction des règles | Description des comportements implémentés | Distinguer règle voulue, contournement, exception et défaut | Catalogue relié au code et aux observations |
-| Comportement cible | Propositions et questions de clarification | Approuver ce qui doit rester ou changer | Spécification cible distincte de l'existant |
-| Architecture cible | Options de découpage et d'intégration | Arbitrer transactions, performance et maintenance | Décisions d'architecture motivées |
-| Génération | Code, interfaces, adaptateurs et configuration | Accepter des lots limités et traçables | Modifications reliées aux exigences et tests |
-| Équivalence | Comparaison et aide à l'analyse des écarts | Fixer les écarts autorisés | Rapport d'écarts classés et risques résiduels |
-| Bascule | Scripts et contrôles préparatoires | Décision de bascule ou d'arrêt | Restauration, réconciliation et repli testés |
-| Exploitation | Surveillance et propositions de correction | Décider des évolutions et du retrait de l'ancien | Historique d'incidents, support et transfert |
+| Découverte | Cartographie, dépendances et données | Confirmer droits, périmètre et inconnues | Carte reliée aux sources inspectées. |
+| Extraction des règles | Description des comportements | Distinguer intention, contournement, exception et défaut | Catalogue relié au code et aux observations. |
+| Comportement cible | Propositions et questions | Approuver ce qui reste, change ou disparaît | Spécification cible distincte de l'existant. |
+| Architecture cible | Options de découpage et intégration | Arbitrer transactions, performance et maintenance | Décisions motivées. |
+| Génération | Code, adaptateurs et configuration | Accepter des lots limités | Modifications reliées aux exigences. |
+| Équivalence | Comparaison et analyse des écarts | Définir les écarts autorisés | Rapport classé et risques résiduels. |
+| Bascule | Scripts et contrôles préparatoires | Autoriser la bascule ou l'arrêt | Réconciliation, restauration et repli testés. |
+| Exploitation | Surveillance et corrections proposées | Évolutions et retrait de l'ancien | Incidents, support et transmission. |
 
-Recommandation : vérifier le support exact des langages, ordonnanceurs, transactions, bases et formats du patrimoine ; ne pas transposer une démonstration COBOL/z/OS à TPF, à des automates ou à un système distribué sans essai représentatif. Les outils américains de modernisation restent des points de comparaison fonctionnels, et non des choix autorisés par défaut dans le cadre souverain.
+Recommandation : vérifier le support exact des langages, transactions, ordonnanceurs, bases et formats. Une démonstration sur COBOL/z/OS ne démontre pas une migration de TPF, d'automates ou d'un système distribué.
 
-### Décrire l'existant sans l'ériger en vérité
+### Décrire l'existant sans le transformer en vérité métier
 
-SPD-AI appelle « boucle inverse du SDD » la démarche qui part d'un logiciel autorisé à l'analyse, reconstruit son comportement et ses inconnues, puis fait valider la cible avant reconstruction ; il s'agit d'une proposition méthodologique, pas d'un standard ([SPD-AI, section 4.2.5](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md)). Recommandation : conserver deux livrables distincts, la description de l'existant et la spécification cible, reliés à des sources, versions, niveaux de confiance et personnes ayant validé.
+La démarche inverse proposée part du logiciel autorisé à l'analyse pour reconstruire des comportements et des inconnues, puis fait valider la cible avant reconstruction. Conserver deux livrables : description de l'existant et spécification cible, avec sources, versions, niveau de confiance et validateurs.
 
-L'analyse de binaires, de l'exécution ou d'une interface peut compléter un code incomplet, mais une reconstruction probable ne prouve ni l'intention ni l'équivalence ; SPD-AI insiste sur les limites des démonstrations de rétro-ingénierie agentique et sur les droits d'analyse ([SPD-AI, sections 2.3, 6.1.5 et 7.3.6](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md)). Recommandation : examiner séparément les droits d'accéder, d'analyser, de réutiliser et de distribuer avant tout essai.
+Une analyse de binaire, d'exécution ou d'interface peut compléter des sources insuffisantes, mais ne prouve ni l'intention d'origine ni l'équivalence générale. Recommandation : examiner séparément les droits d'accéder, d'analyser, de réutiliser et de distribuer avant l'essai.
 
-### Trois preuves distinctes avant la bascule
+### Trois preuves avant la bascule
 
-SPD-AI sépare équivalence avec l'ancien, correction métier et aptitude à l'exploitation ; reproduire un défaut ancien peut satisfaire la première et contredire la deuxième ([SPD-AI, section 5.2.3](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md)). Recommandation : classer chaque différence en changement approuvé, défaut du nouveau, défaut découvert dans l'ancien ou différence inexpliquée ; l'autorité d'acceptation décide sur ces écarts et leur risque, pas seulement sur un pourcentage de tests réussis.
+Le dossier proposé sépare l'équivalence avec l'ancien, la correction métier et l'aptitude à l'exploitation. Reproduire un défaut ancien peut satisfaire la première sans satisfaire la deuxième.
 
-Recommandation : inclure les arrondis, dates de valeur, ordres de tri, formats, délais, erreurs, reprises et garanties transactionnelles dans les scénarios représentatifs. Pour le parallèle ancien/nouveau, utiliser le rejeu ou un mode sans effets réels : une seule chaîne doit pouvoir déclencher un paiement, une écriture comptable ou une commande industrielle.
+Classer chaque différence en changement approuvé, défaut du nouveau, défaut découvert dans l'ancien ou différence inexpliquée. Les critères proposés incluent arrondis, unités, dates, tris, délais, erreurs, reprises, concurrence et garanties transactionnelles.
 
-La coexistence progressive de type strangler fig évite une réécriture en bascule unique, mais crée des coûts supplémentaires de double exploitation et de comparaison ; SPD-AI ne les assimile pas à un doublement automatique du coût total ([SPD-AI, section 6.1.5](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md)). Recommandation : budgéter explicitement les adaptateurs, synchronisations, réconciliations et fenêtres de coexistence.
+Pour l'exécution parallèle, prévoir le rejeu ou un mode sans effets réels, avec une seule chaîne autorisée à déclencher un paiement, une écriture ou une commande industrielle. La coexistence progressive doit budgéter les adaptateurs, synchronisations, réconciliations et fenêtres de double exploitation, sans les assimiler à un doublement automatique de tout le coût.
 
-### Effort, coûts et trajectoire de décision
+### Amadeus : repère historique et sensibilité, pas prévision IA
 
-Le calcul illustratif sur une base de 2 000 personnes-années donne 1 600 après une réduction hypothétique de 20 %, 1 400 après 30 % et 1 200 après 40 %. Ajouter un scénario sans gain net et un scénario de surcoût de 10 %, soit 2 200 personnes-années ; aucun de ces résultats n'est une estimation actuelle d'Amadeus, et aucun ne fournit la durée du programme.
+Amadeus rapporte environ 2 000 personnes-années, plus de 400 ingénieurs au pic et la fin du dernier mainframe fin 2018 ; il s'agit d'une déclaration de l'entreprise, pas d'une ventilation auditée des tâches ([rétrospective Amadeus](https://amadeus.com/en/blog/articles/celebrating-one-year-fully-open-systems)). Elle ne mesure pas une migration comparable réalisée aujourd'hui avec l'IA.
 
-Recommandation : financer d'abord un lot représentatif, avec comportement de référence, exceptions et tests indépendants, puis mesurer le coût par comportement validé, la couverture et les écarts inexpliqués. Estimer séparément le gain lié à l'IA, celui des outils de migration classiques et celui du changement de plateforme.
+| Hypothèse de sensibilité sur une base de 2 000 personnes-années | Effort arithmétique |
+|---|---:|
+| Surcoût de 10 % | 2 200 personnes-années |
+| Aucun gain net | 2 000 personnes-années |
+| Réduction de 20 % | 1 600 personnes-années |
+| Réduction de 30 % | 1 400 personnes-années |
+| Réduction de 40 % | 1 200 personnes-années |
 
-Hypothèse budgétaire pour une cellule pilote, et non pour un programme de plusieurs millions de lignes : 500 à 5 000 € par mois d'infrastructure GPU européenne ou 6 000 à 10 000 € par mois pour l'enveloppe SecNumCloud retenue dans ce guide. Sur six mois, cela représente respectivement 3 000 à 30 000 € et 36 000 à 60 000 €, avant équipe, analyse, licences, tests, exploitation parallèle et sécurité ; ces montants restent à revalider par devis et ne dimensionnent pas le débit nécessaire.
+Aucun de ces chiffres n'est une estimation actuelle d'Amadeus ni un calendrier. Recommandation : distinguer le gain de l'IA de celui des outils classiques et du changement de plateforme, puis mesurer les fonctionnalités acceptées, les reprises, les écarts et la performance sur un domaine limité.
 
-La phase initiale doit donc décider de la classification réelle, du périmètre qualifié exigé, de la compatibilité technique et de la capacité de vérification. Un gros volume n'impose pas en soi SecNumCloud, et produire un code cible ne justifie aucun déclassement automatique.
+Pour une cellule pilote, une hypothèse GPU de 600 à 6 000 €/mois représente 3 600 à 36 000 € sur six mois ; une enveloppe de 6 100 à 10 000 €/mois représente 36 600 à 60 000 €. Ajouter l'équipe, l'analyse, les licences, les jeux de référence, la sécurité et la coexistence : ces enveloppes ne financent ni ne dimensionnent à elles seules un programme de plusieurs millions de lignes.
 
-### Synthèse comparative des deux scénarios
+### Comparaison des deux trajectoires
 
-| Dimension | From scratch | Migration d'un gros logiciel |
+| Dimension | Création | Migration |
 |---|---|---|
-| Confidentialité | Classification avant le premier prompt, même sans code ancien | Classification de l'existant et de tous ses dérivés |
-| Décision initiale | Quel problème mérite un produit, plutôt qu'un prototype ? | Que préserver, corriger, retirer ou remplacer ? |
-| Goulot à mesurer | Découverte, spécification, revue et apprentissage d'usage | Compréhension, architecture, preuves et bascule |
-| Gain lié à l'IA | À mesurer, sans coefficient global présumé | À mesurer par lot et type d'activité |
-| Investissement initial | Pilote API si autorisé ; infrastructure dédiée si nécessaire | Pilote représentatif et outillage de comparaison |
+| Décision initiale | Quel problème mérite le produit ? | Que préserver, corriger, retirer ou remplacer ? |
+| Confidentialité | Classifier avant le premier prompt | Classifier l'existant et ses dérivés |
+| Goulot à mesurer | Découverte, spécification, revue et usage | Compréhension, architecture, preuves et bascule |
+| Gain IA | À mesurer, sans coefficient présumé | À mesurer par activité et par lot |
 | Risque principal | Produit conforme à une demande mal choisie ; dette de compréhension | Défauts hérités pris pour des règles ; écarts inexpliqués |
-| Mesure pilote clé | Coût accepté, défauts et utilité observée | Coût par comportement validé, écarts et aptitude à l'exploitation |
+| Mesure du pilote | Coût accepté, défauts et utilité | Coût par comportement validé, écarts et aptitude à l'exploitation |
 
-Dans les deux scénarios, la recommandation est de financer conjointement réalisation, preuve, transmission et exploitation. Le résultat recherché n'est pas simplement un logiciel généré en Europe, mais un produit utile que l'organisation peut comprendre, accepter, maintenir et reprendre sans dépendre d'un fournisseur unique.
+## Mesurer et financer le résultat
 
-## 13. Synthèse des recommandations
+L'indicateur de gestion proposé est le coût complet par modification acceptée et maintenue sur une fenêtre d'observation explicite. Cette fenêtre doit correspondre au cycle du produit et ne dispense pas de traiter immédiatement les défauts graves.
 
-1. Traiter la souveraineté comme une propriété de toute la chaîne (modèle, inférence, agent, IDE, forge, CI), pas seulement du modèle.
-2. Distinguer open weight (contrôle des poids) et souverain (contrôle de l'opérateur) : un modèle chinois ou américain auto-hébergé en Europe peut être plus souverain qu'une API européenne mal contractualisée.
-3. Lire chaque licence : les seuils de chiffre d'affaires et les droits liés à un hébergeur changent la donne.
-4. Commencer par un pilote dans un environnement autorisé pour les artefacts traités ; utiliser des API européennes si leur périmètre le permet.
-5. Investir d'abord dans la passerelle et le banc d'essai : ce sont eux qui permettent de changer de modèle quand la génération suivante arrive.
-6. Accepter une phase mixte : garder l'accès aux meilleurs outils pour le code public tant que l'écart de qualité est réel, et le mesurer régulièrement.
-7. Instruire séparément les champs de NIS2, du CRA, du RGPD et de l'AI Act ; documenter les fournisseurs, les vulnérabilités et les notifications applicables.
-8. Constituer un patrimoine transmissible : règles, décisions, spécifications, preuves et exploitation, avec provenance et responsables.
-9. Séparer confidentialité des artefacts, permissions des agents et acceptation des changements ; aucun de ces axes ne remplace les autres.
-10. En migration, distinguer comportement existant et cible, puis prouver équivalence, correction métier et aptitude à l'exploitation.
-11. Financer la preuve et la maintenance dans la durée ; présenter les gains et retours sur investissement comme des hypothèses tant que le pilote ne les a pas mesurés.
+\[
+\text{Coût par modification acceptée} =
+\frac{\text{coûts complets de la période, reprises et défauts inclus}}
+{\text{modifications acceptées et maintenues sur la fenêtre retenue}}
+\]
 
-Ce qui changerait cette conclusion : un écart de qualité très important sur vos tâches réelles en faveur d'outils US (le coût de la souveraineté devient alors élevé), ou au contraire un modèle compact suffisant, qui rendrait l'auto-hébergement complet simple et peu coûteux.
+Décomposer les coûts en préparation du contexte, génération, évaluations automatiques, revue, corrections, déploiement, surveillance et défauts après acceptation. Affecter une seule fois les coûts partagés et éviter d'ajouter une seconde fois un temps humain déjà compris dans le budget de l'équipe.
 
-## Annexe : concordance avec SPD-AI
+Les indicateurs proposés comprennent :
 
-La comparaison porte sur la version 1.0 du document principal, consultée le 21 octobre 2026 ; le dépôt affiche alors a261f2e comme dernière révision visible ([SPD-AI, dépôt et README](https://github.com/fdepierre/SPD-AI)). Les correspondances suivantes décrivent les modifications de ce guide, sans prétendre valider à nouveau toutes les références du document principal.
+- **Qualité** : acceptation sans retouche, écarts métier, régressions et vulnérabilités.
+- **Temps humain** : revue, reprise, analyse d'impact et résolution d'incidents.
+- **Exploitation** : disponibilité, retours arrière, restauration et performance.
+- **Souveraineté** : flux dans les périmètres autorisés, dépendances et substitution testée.
+- **Transmission** : capacité d'un autre ingénieur à expliquer une règle et maintenir le produit.
+- **Valeur** : usage réel, satisfaction et effet observé, pas seulement nombre de tickets fermés.
 
-| Référence SPD-AI | Apport repris | Modification dans ce guide |
+Exemple hypothétique : cinq personnes consacrant deux heures par semaine à la preuve et à la transmission représentent environ 40 heures sur quatre semaines. À un coût complet choisi de 80 €/h, cela représente 3 200 €/mois à rendre visible, sans le compter deux fois si les salaires sont déjà inclus.
+
+## Feuille de route proposée
+
+### Cadrer et mesurer : zéro à trois mois
+
+- **Inventaire** : classifier artefacts et outils existants, identifier droits, responsables et destinations.
+- **Connaissance** : constituer le patrimoine minimal et les critères de décision.
+- **Pilote** : sélectionner 30 à 50 tickets ou comportements représentatifs, avec acceptation indépendante.
+- **Comparaison** : tester trois ou quatre modèles dans un périmètre autorisé, sans achat lourd par défaut.
+- **Gouvernance** : fixer permissions, escalades, arrêts et autorité d'acceptation.
+
+### Étendre avec des preuves : trois à neuf mois
+
+- **Plateforme** : déployer passerelle, sandbox, journaux nécessaires et contrôles.
+- **Charge** : mesurer concurrence, mémoire, latence, consommation et coût complet.
+- **Sécurité** : scanners, dépendances, SBOM lorsque requis et suivi des vulnérabilités.
+- **Contrats** : confirmer sous-traitants, rétention, modèle servi, qualification et réversibilité.
+- **Compétences** : financer la revue, la preuve, la transmission et la maintenance.
+
+### Réduire les dépendances : neuf à vingt-quatre mois
+
+- **Choix économique** : décider achat, location ou API sur les mesures et devis.
+- **Substitution** : tester le remplacement du modèle, de l'agent et de l'opérateur.
+- **Évolution** : rejouer le banc d'essai à chaque changement significatif.
+- **Exploitation** : vérifier support, restauration, incidents et maintien des preuves.
+
+Pour une migration, une phase préalable de découverte peut être nécessaire avant cette feuille de route. Son environnement est déterminé par les artefacts et les contraintes, pas par la seule taille du patrimoine.
+
+## Demain : horizon de douze à trente-six mois
+
+Les trajectoires suivantes sont des hypothèses, pas des prévisions de disponibilité ou de performance. Elles servent à vérifier si les investissements restent utiles lorsque les capacités des outils changent.
+
+| Trajectoire possible | Effet envisagé | Réponse proposée |
 |---|---|---|
-| Sections 1.2-1.3 et annexe H | Statut explicite des affirmations et inconnues | Convention de lecture et registre de réserves |
-| Sections 3.2 et 4.1 | Choix du problème et patrimoine transmissible | Ajout de la découverte, des fichiers de connaissance et de la transmission |
-| Section 4.2 | Spécification évolutive ; existant distinct de la cible | Révision des deux scénarios et boucle inverse proposée |
-| Section 5.1 | Permissions distinctes de la confidentialité | Accès, modification, validation, escalade et réversibilité |
-| Section 5.2 | Trois acceptations et limites de la supervision | Preuves indépendantes, autorité compétente et pouvoir de refus |
-| Section 5.3 | Architecture vérifiable, composable et reprenable | Contrats, séparation des composants et substitution testée |
-| Section 6.1 | Huit phases de modernisation | Ajout du comportement cible et de l'exploitation |
-| Section 7.2 | Coût complet et capacité humaine/IA | Correction du calcul API, du taux d'usage et du retour sur investissement |
-| Section 7.3 | Produit, organisation, données et hébergement | Grille de champ et retrait des garanties automatiques |
-| Section 8.1 | Futurs conditionnels, sans scénario imposé | Prospective en trois trajectoires |
+| Autonomie accrue des métiers | Plus de prototypes et d'outils locaux | Règle d'industrialisation et de reprise lorsqu'un outil devient partagé ou critique. |
+| Spécification devenue artefact principal | Davantage de génération et de régénération | Conserver règles, décisions, preuves et compréhension humaine. |
+| Automatisation plus large | Moins d'intervention sur certains lots vérifiables | Permissions proportionnées, capacité d'arrêt et indépendance de l'acceptation. |
+| Modèle compact suffisant | Infrastructure plus légère possible | Redimensionner après mesure, pas selon le seul nombre de paramètres. |
+| Écart durable en faveur de modèles fermés | Coût d'opportunité d'un choix souverain | Mesurer l'écart ; garder les cas publics séparés des cas sensibles. |
 
-Les références de cette table renvoient au [document principal de SPD-AI](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md). Ce guide reste autonome et complémentaire : il ne copie pas l'ensemble de ses annexes et ne reprend pas comme établis ses éléments signalés « à vérifier ».
+Recommandation : ne pas investir sur l'hypothèse d'une disparition de la revue du code ni sur celle d'une supériorité durable d'un laboratoire. Les actifs à conserver sont les données autorisées, les interfaces, les règles, les tests, les décisions, les procédures de reprise et les compétences.
 
-## Annexe : réserves et vérifications avant publication
+## Décisions et vérifications encore nécessaires
 
-Cette révision corrige les conclusions excessives repérées par comparaison, sans constituer une revue juridique complète ni une actualisation de tous les prix et modèles. Comme dans l'annexe H de [SPD-AI](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md), les réserves restent visibles pour éviter qu'une répétition transforme une hypothèse en fait.
+Les sources vérifiées ne doivent plus être présentées comme inconnues, mais elles ne ferment pas les questions propres au projet. Le tableau suivant limite les réserves aux points qui nécessitent encore une preuve ou un engagement.
 
-| Élément | Statut dans cette version | Vérification nécessaire avant décision |
+| Point ouvert | Ce qui est établi | Ce qui reste à obtenir |
 |---|---|---|
-| Gain de 20 à 40 % sur une migration de type Amadeus | Sensibilité, sans validation empirique ; pas un résultat publié par Amadeus | Pilote représentatif incluant revue, reprises et preuves |
-| Modèles et paramètres exacts cités | Repères hérités, pas un catalogue certifié au 21 octobre | Fiche officielle, licence de la version exacte, disponibilité |
-| Seuils des licences Mistral et droits via hébergeur | Information héritée de références à revalider | Texte contractuel primaire et compatibilité avec l'entité utilisatrice |
-| Tarifs API, GPU, matériel et TCO H100 | Repères budgétaires, certains issus de sources secondaires | Devis, devise, taxes, région, durée, support et méthode TCO |
-| Offre GPU présentée comme SecNumCloud | Qualification exacte du service non établie ici | Décision de qualification et périmètre du service GPU/inférence |
-| Formules « immunité », « seul dispositif » et seuils capitalistiques | Analyses héritées, pas une garantie juridique générale | Référentiel officiel, structure de contrôle, contrats et conseil juridique |
-| EUCS, CADA, C5, ENS, ACN, HDS et comparaisons ISO 27001 | Tableau conservé comme cartographie de travail | Statut officiel, version applicable et exigences du marché visé ; pas d'équivalence automatique |
-| Transposition NIS2 en France | État exact non conclu dans cette révision | Textes publiés et dispositions d'entrée en vigueur |
-| Calendrier AI Act, CRA et signalements | Repères cités, à contrôler selon le rôle et le produit | Texte consolidé, modifications, conditions déclenchantes et délais finaux |
-| « Politique IA » et « autorité d'acceptation » | Recommandations d'organisation | Démontrer leur contribution aux obligations, sans les présenter comme rôles légaux imposés |
-| Absence d'exfiltration, déclassement N3 vers N2 | Garanties automatiques retirées | Contrôle des flux réels et déclassement explicite |
-| Droits sur les codes, binaires et sorties reconstruits | Question à instruire avant analyse et réutilisation | Contrats, licences, propriété intellectuelle et autorisations |
+| Juridiction et accès | La nationalité et la localisation ne suffisent pas | Analyse du groupe, contrats, sous-traitants, accès et réquisitions |
+| Qualification de l'offre GPU/inférence | Décision IaaS et tarifs publics disponibles | Rattachement exact de la configuration et services associés |
+| Devstral 2 serverless Scaleway | Documentation contradictoire | Confirmation du modèle réellement servi et de sa durée de vie |
+| Licences | Conditions vérifiées pour les versions citées | Applicabilité à l'entité, au groupe, au service et aux dérivés |
+| Capacité matérielle | Paramètres et configurations publiées documentés | Essai du moteur, du contexte, du débit et des sessions |
+| Achat européen | Enveloppes de cadrage proposées | Devis exacts, taxes, intégration, garantie, délais et support |
+| TCO local | Origine du scénario H100 retrouvée | Coûts locaux, charge, continuité et périmètre comparable |
+| Réglementation | Références et calendriers documentés | Analyse de champ, textes actualisés et exigences sectorielles |
+| Migration | Méthode et critères proposés | Droits, références indépendantes, écarts et bascule autorisée |
+| Gains de l'IA | Études contextualisées et sensibilité distinguées | Mesures sur le travail réellement accepté et maintenu |
 
-Recommandation avant engagement : traiter d'abord les points qui peuvent inverser une décision d'achat, de fournisseur ou de mise sur le marché. Les autres réserves peuvent rester dans un document de travail, à condition de ne pas être présentées dans le corps ou un résumé comme des faits définitivement acquis.
+La décision proposée n'est pas de choisir un unique « modèle souverain », mais de construire une chaîne dont les dépendances et les preuves restent maîtrisées. Un achat important ou un engagement de conformité ne devrait intervenir qu'après traitement des points pouvant inverser le choix.
 
 ## Annexe : sources et références
 
-Les liens ci-dessous regroupent les références utilisées ou conservées des versions successives, par thème ; leur présence ne signifie pas qu'elles ont toutes été relues et validées lors de la révision du 21 octobre 2026. Les réserves de l'annexe précédente s'appliquent aux montants, licences, calendriers et qualifications.
+Les liens suivants regroupent toutes les références citées dans cette version. Les sources primaires établissent les textes, décisions, licences et prix dans leur périmètre ; les sources fournisseurs et estimations secondaires restent identifiées comme telles dans le corps.
 
-### Document de référence pour cette révision
+### Droit et qualification cloud
 
-- Franck Depierre, « Le futur du Product Management à l'ère des agents IA », version 1.0, octobre 2026 : [document dans SPD-AI](https://github.com/fdepierre/SPD-AI/blob/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md).
-- Texte intégral lu pour la comparaison : [version brute du document principal](https://raw.githubusercontent.com/fdepierre/SPD-AI/main/Le%20futur%20du%20Product%20Management%20%C3%A0%20l%27%C3%A8re%20des%20agents%20IA.md).
-- Objet, méthode, statut et licence du dépôt : [SPD-AI, README et navigation](https://github.com/fdepierre/SPD-AI).
+- Department of Justice, CLOUD Act et juridiction : [FAQ officielle, notamment questions 24 et 25](https://www.justice.gov/criminal/media/999616/dl?inline).
+- ANSSI, SecNumCloud v3.2 : [référentiel d'exigences, notamment § 3.3.2, 19.1, 19.2 et 19.6](https://cyber.gouv.fr/documents/388/secnumcloud-referentiel-exigences-v3.2.pdf).
+- ANSSI, Cloud Temple : [décision de qualification n° 3389 du 31 juillet 2026](https://messervices.cyber.gouv.fr/visas/2026_3389_np.pdf).
 
-### Cadre juridique et souveraineté
+### Modèles et licences
 
-- CLOUD Act et niveaux de cloud souverain : [donneespersonnelles.fr – Cloud souverain](https://www.donneespersonnelles.fr/cloud-souverain)
-- SecNumCloud 3.2, critères d'actionnariat : [Oodrive – 5 raisons de choisir SecNumCloud](https://www.oodrive.com/fr/blog/secnumcloud/infrastructure/5-raisons-choisir-environnement-qualifie-secnumcloud/)
-- Immunité extraterritoriale, limites : [Cyber Networks – Guide SecNumCloud](https://cyber-networks.fr/cybersecurite/secnumcloud-qualification-anssi-guide/)
-- Piles logicielles américaines, Bleu et S3NS : [Nexthop – SecNumCloud](https://www.nexthop.fr/secnumcloud/)
-- Chapitre 19.x du référentiel : [Insurio – Immunité extraterritoriale SecNumCloud](https://www.insurio.fr/blog/immunite-extraterritoriale-secnumcloud-responsabilite-consultant)
-- Critères capitalistiques détaillés : [dpliance – SecNumCloud](https://dpliance.com/blog/secnumcloud-entreprise/)
+- Qwen : [Qwen3.8-27B, fiche officielle](https://huggingface.co/Qwen/Qwen3.8-27B).
+- Z.ai : [GLM-5.3, fiche officielle](https://huggingface.co/zai-org/GLM-5.3) et [licence](https://huggingface.co/zai-org/GLM-5.3/raw/main/LICENSE).
+- Mistral : [Devstral Small 2 24B, version 2512](https://huggingface.co/mistralai/Devstral-Small-2-24B-Instruct-2512).
+- Mistral : [licence Devstral 2 123B, version 2512](https://huggingface.co/mistralai/Devstral-2-123B-Instruct-2512/raw/main/LICENSE).
+- Mistral : [licence Mistral Medium 3.5 128B](https://huggingface.co/mistralai/Mistral-Medium-3.5-128B/raw/main/LICENSE).
+- Mistral : [annonce Small 4](https://mistral.ai/news/mistral-small-4/?id=MistralSmall4) et [documentation Large 3](https://docs.mistral.ai/models/mistral-large-3-25-12.md).
 
-### Offres européennes d'inférence et modèles
+### Services et tarifs
 
-- Catalogue Scaleway Generative APIs : [Scaleway – Supported models](https://www.scaleway.com/en/docs/generative-apis/reference-content/supported-models/)
-- Documentation Generative APIs et hébergement à Paris : [Scaleway – Docs](https://www.scaleway.com/en/docs/generative-apis/) et [DeepWiki – Scaleway docs](https://deepwiki.com/scaleway/docs-content/5.1-generative-apis)
-- Tarifs API Scaleway : [Scaleway – Generative APIs](https://www.scaleway.com/en/generative-apis/)
-- Déploiements dédiés et cycle de vie : [Scaleway – FAQ](https://www.scaleway.com/en/docs/generative-apis/faq/) et [Scaleway – Model lifecycle](https://www.scaleway.com/en/docs/generative-apis/reference-content/model-lifecycle/)
-- Qwen3.8 27B et DeepSeek-V4-Flash sur Scaleway : [Scaleway – Docs](https://www.scaleway.com/en/docs/generative-apis/)
-- OVHcloud AI Endpoints, hébergement UE et modèles open weight : [OVHcloud – AI Endpoints](https://www.ovhcloud.com/en/public-cloud/ai-endpoints/)
-- Capacités et limites OVHcloud : [OVHcloud docs – Capabilities](https://docs.ovhcloud.com/en/guides/public-cloud/ai-machine-learning/ai-endpoints-capabilities.md)
-- Cycle de vie OVHcloud : [OVHcloud docs – Billing and lifecycle](https://docs.ovhcloud.com/en/guides/public-cloud/ai-machine-learning/ai-endpoints-billing)
-- Licences des modèles open weight, seuil Mistral : [Developers Digest – Open-weight model licenses](https://www.developersdigest.tech/local-models/licenses)
+- Scaleway : [modèles, configurations, licences et cycle de vie](https://www.scaleway.com/en/docs/generative-apis/reference-content/supported-models/).
+- Scaleway : [tarifs Model-as-a-Service, serverless et dédié](https://www.scaleway.com/en/pricing/model-as-a-service/).
+- Scaleway : [tarifs des instances GPU](https://www.scaleway.com/en/pricing/gpu/).
+- OVHcloud : [AI Endpoints, engagements et intégrations annoncés](https://www.ovhcloud.com/en/public-cloud/ai-endpoints/).
+- OVHcloud : [facturation et cycle de vie des modèles](https://docs.ovhcloud.com/en/guides/public-cloud/ai-machine-learning/ai-endpoints-billing).
+- OVHcloud : [page tarifaire internationale consultée](https://www.ovhcloud.com/en/public-cloud/prices/).
+- OVHcloud : [communiqué historique du 24 janvier 2024](https://corporate.ovhcloud.com/en/newsroom/news/ai-offer/).
+- Cloud Temple : [offre IA et formulation du périmètre d'infrastructure](https://www.cloud-temple.com/en/ai-offer/).
+- Cloud Temple : [tarifs publics, GPU, OpenShift et LLMaaS](https://www.cloud-temple.com/nos-tarifs-publics/).
 
-### AI Act
-- Calendrier et application : [AI Act Service Desk – FAQ](https://ai-act-service-desk.ec.europa.eu/fr/faq?combine=) et [Commission européenne – AI Act](https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai)
-- Résumé des obligations GPAI : [artificialintelligenceact.eu – Résumé de haut niveau](https://artificialintelligenceact.eu/fr/high-level-summary/)
-- Application du chapitre V : [artificialintelligenceact.eu – Enforcement of Chapter V](https://artificialintelligenceact.eu/fr/enforcement-of-chapter-v-under-the-eu-ai-act/)
-- Report des systèmes à haut risque : [Cabinet Persée – AI Act 2026](https://cabinetpersee.com/blog/posts/ai-act-ce-qui-change-2026/)
-- Obligations GPAI en France : [vie-publique.fr – AI Act](https://www.vie-publique.fr/questions-reponses/292157-ai-act-le-reglement-europeen-sur-lintelligence-artificielle-ia)
+### Référentiels européens
 
-### NIS2
-- Cadre européen : [Commission européenne – NIS2 Directive](https://digital-strategy.ec.europa.eu/en/policies/nis2-directive) et [EUR-Lex – Directive (UE) 2022/2555](https://eur-lex.europa.eu/legal-content/FR/LSU/?uri=oj:JOL_2022_333_R_0002)
-- Transposition française en cours, ReCyF : [ANSSI – Directive NIS 2](https://cyber.gouv.fr/reglementation/cybersecurite-systemes-dinformation/directives-nis-nis2-et-dispositif-saiv/directive-nis-2/)
-- État de la transposition : [TS Monde – NIS2 France](https://tsmondo.eu/fr/nis2-france) et [NIS2 Directive – Transposition France](https://www.nis-2-directive.com/Transposition/France.html)
-- Mesures des articles 20 et 21 : [ANSSI – FAQ NIS2](https://aide.monespacenis2.cyber.gouv.fr/fr/article/quelles-sont-les-exigences-en-matiere-de-cybersecurite-auxquelles-les-entites-regulees-a-la-directive-nis-2-devront-se-soumettre-193huwi/) et [NIS2 Directive – Article 21](https://www.nis-2-directive.com/NIS_2_Directive_Article_21.html)
-- Enregistrement MonEspaceNIS2 : [FAQ MonEspaceNIS2 – Obligations](https://aide.monespacenis2.cyber.gouv.fr/fr/category/obligations-9vpf70/)
-- Texte intégral : [nis2-info.eu – Full text](https://www.nis2-info.eu/regulation/nis2/fulltext-and-download-pdf/)
+- Commission : [cadre européen de certification et état des schémas](https://digital-strategy.ec.europa.eu/en/factpages/european-cybersecurity-certification-framework).
+- EUR-Lex : [règlement EUCC 2024/482](https://eur-lex.europa.eu/eli/reg_impl/2024/482/oj/eng).
+- ENISA : [présentation EUCC](https://certification.enisa.europa.eu/browse-topic/eucc_en).
+- BSI : [FAQ C5, critères, attestation et transition](https://www.bsi.bund.de/EN/Themen/Unternehmen-und-Organisationen/Informationen-und-Empfehlungen/Empfehlungen-nach-Angriffszielen/Cloud-Computing/Kriterienkatalog-C5/C5-FAQ/kriterienkatalog-c5-faq.html).
+- BSI : [publication de C3A, 27 avril 2026](https://www.bsi.bund.de/DE/Service-Navi/Presse/Pressemitteilungen/Presse2026/260427_C3A.html) et [cadre C3A](https://www.bsi.bund.de/EN/Themen/Unternehmen-und-Organisationen/Informationen-und-Empfehlungen/Empfehlungen-nach-Angriffszielen/Cloud-Computing/C3A/C3A.html).
+- Espagne, BOE : [Real Decreto 311/2022, ENS](https://www.boe.es/buscar/act.php?id=BOE-A-2022-7191).
+- Italie, ACN : [règlement cloud pour l'administration](https://www.acn.gov.it/portale/en/cloud/regolamento-cloud-per-la-pa).
+- ANS : [référentiel HDS v2.0](https://esante.gouv.fr/sites/default/files/media_entity/documents/referentiel_certification_hds---fr--v2.pdf) et [FAQ de transition](https://esante.gouv.fr/faq/comment-sorganise-la-transition-avec-la-nouvelle-version-du-referentiel).
+- ANS : [PDF HDS v2.1 avec dates d'arrêté non renseignées, non retenu seul pour établir l'opposabilité](https://esante.gouv.fr/sites/default/files/media/document/R%C3%A9f%C3%A9rentiel_certification_HDS%20-%20FR%20-%20V2.1%20-%20post%20concertation.pdf).
+- Commission : [proposition CADA](https://digital-strategy.ec.europa.eu/en/library/proposal-cloud-and-ai-development-act-cada) et [présentation des niveaux de souveraineté](https://digital-strategy.ec.europa.eu/en/policies/cloud-and-ai-development-act).
 
-### Cyber Resilience Act
-- Cadre et calendrier : [Commission européenne – Cyber Resilience Act](https://digital-strategy.ec.europa.eu/en/policies/cyber-resilience-act) et [entreprises.gouv.fr – CRA](https://www.entreprises.gouv.fr/decryptages-de-nos-experts/cyber-resilience-act-cra-ce-qui-change-pour-les-entreprises-et-comment)
-- Obligations de signalement : [Commission européenne – CRA Reporting](https://digital-strategy.ec.europa.eu/en/policies/cra-reporting)
-- Plateforme unique CRA-SRP : [ENISA – The CRA Single Reporting Platform is launched](https://www.enisa.europa.eu/news/the-cra-single-reporting-platform-is-launched) et [BSI – Single Reporting Platform](https://www.bsi.bund.de/EN/Themen/Unternehmen-und-Organisationen/Informationen-und-Empfehlungen/Cyber_Resilience_Act/Single_Reporting_Platform-CRA/single_reporting_platform-cra.html)
-- Analyse du régime de signalement : [CMS – Ready, respond, report](https://cms.law/en/int/legal-updates/ready-respond-report-the-cyber-resilience-act-s-reporting-regime-is-here)
-- Période transitoire et FAQ officielle : [CRA ORCWG – Transition period](https://cra.orcwg.org/faq/official/transition/)
-- Annexe I, exigences essentielles : [Cyber Resilience Act – Annex I](https://cyber-resilience-act.com/annexes/annex-i/) et [VamiSec – EU Cyber Resilience Act](https://vamisec.com/fr/wissen/grc/eu-cyber-resilience-act)
-- Mise en œuvre et normes : [Commission européenne – CRA Implementation](https://digital-strategy.ec.europa.eu/en/factpages/cyber-resilience-act-implementation)
+### NIS2, CRA et AI Act
 
-### Autres référentiels et certifications européennes
+- EUR-Lex : [directive NIS2 2022/2555, notamment articles 20, 21 et 23](https://eur-lex.europa.eu/eli/dir/2022/2555/oj/eng).
+- ANSSI : [NIS2, état de la transposition et pré-enregistrement](https://messervices.cyber.gouv.fr/nis2).
+- ANSSI : [NIS2 et statut de ReCyF](https://cyber.gouv.fr/reglementation/cybersecurite-systemes-dinformation/directives-nis-nis2-et-dispositif-saiv/directive-nis-2/).
+- EUR-Lex : [CRA 2024/2847, notamment articles 3, 13, 14, 69, 71 et annexe I](https://eur-lex.europa.eu/eli/reg/2024/2847/oj/eng).
+- ENISA : [plateforme CRA et dates de signalement](https://www.enisa.europa.eu/news/the-cra-single-reporting-platform-is-launched).
+- Commission : [AI Act, calendrier et périmètres](https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai).
+- EUR-Lex : [règlement modificatif 2026/1744, notamment article 1, points 5 et 40](https://eur-lex.europa.eu/legal-content/FR/ALL/?uri=CELEX:32026R1744).
 
-- EUCS, statut et blocage : [Wikipédia – EUCS](https://en.wikipedia.org/wiki/EUCS_(cloud_computing)), [Nexthop – EUCS](https://www.nexthop.fr/en/understand/eucs) et [Nexthop – EUCS, chronique d'une capitulation](https://www.nexthop.fr/blog/eucs-chronique-d-une-capitulation-europeenne-sur-la-souverainete-numerique/)
-- Cadre européen de certification, EUCC et schémas en cours : [Commission européenne – European cybersecurity certification framework](https://digital-strategy.ec.europa.eu/en/factpages/european-cybersecurity-certification-framework)
-- EUCC en fonctionnement : [ENISA – EUCC](https://certification.enisa.europa.eu/browse-topic/eucc_en?prefLang=ro)
-- Souveraineté dans la commande publique, Cloud and AI Development Act : [IT SOCIAL – EUCS et CADA](https://itsocial.fr/cybersecurite/cybersecurite-articles/eucs-et-cada-leurope-abandonne-la-souverainete-dans-son-label-cloud-et-la-reintroduit-dans-la-commande-publique/)
-- Comparaison des schémas nationaux (C5, SecNumCloud, ENS, ACN) : [CloudPick – EU Member-State Cloud Security Schemes](https://docs.cloudpick.kr/en/eu/national-schemes/)
-- C5:2026 : [BSI – Sicheres Cloud-Computing](https://www.bsi.bund.de/DE/Service-Navi/Presse/Pressemitteilungen/Presse2026/260407_C5_Cloud_Computing.html) et [BSI – FAQ C5](https://www.bsi.bund.de/EN/Themen/Unternehmen-und-Organisationen/Informationen-und-Empfehlungen/Empfehlungen-nach-Angriffszielen/Cloud-Computing/Kriterienkatalog-C5/C5-FAQ/kriterienkatalog-c5-faq.html)
-- ENS Espagne : [Ministère de l'Économie – Esquema Nacional de Seguridad](https://portal.mineco.gob.es/es-es/ministerio/estrategias/Paginas/Esquema_Nacional_de_Seguridad.aspx)
-- HDS, exigences et EEE : [Agence du Numérique en Santé – Hébergement des données de santé](https://esante.gouv.fr/labels-certifications/hebergement-des-donnees-de-sante) et [sante.gouv.fr – Référentiel HDS](https://sante.gouv.fr/actualites-presse/presse/communiques-de-presse/article/publication-au-journal-officiel-du-referentiel-de-certification-hds)
-- Référentiel HDS V2.1, chapitre 7 souveraineté : [ANS – Référentiel de certification](https://esante.gouv.fr/sites/default/files/media/document/R%C3%A9f%C3%A9rentiel_certification_HDS%20-%20FR%20-%20V2.1%20-%20post%20concertation.pdf)
-- EUCS vu par l'ANSSI, SecNumCloud comme base du niveau élevé : [ANSSI – Cadre de certification européen](https://cyber.gouv.fr/reglementation/reglementation-identite-confiance-numerique/cadre-de-certification-de-cybersecurite-europeen/)
+### Matériel et TCO
 
-### Scénarios from scratch et migration
+- Idealo : [référence RTX PRO 6000 Blackwell Server Edition, sans offre lors du contrôle](https://www.idealo.fr/prix/207353877/nvidia-rtx-pro-6000-blackwell-server-edition.html).
+- SabrePC : [référence 900-2G153-0000-000, prix et configuration à clarifier avant devis](https://www.sabrepc.com/900-2G153-0000-000-NVIDIA-S8845543).
+- Mercatus : [estimation secondaire des prix H100](https://www.mercatus-ai.com/blog/h100-server-price).
+- CloudZero : [analyse secondaire des coûts H100](https://www.cloudzero.com/blog/h100-gpu-cost/).
+- Spheron : [scénario original de TCO et comparaison cloud, publié par un fournisseur](https://www.spheron.network/blog/llm-inference-on-premise-vs-cloud/).
+- AI Intel Report : [article reprenant la fourchette TCO](https://aiintelreport.com/enterprise-ai/on-premise-ai-cost-tco).
 
-- Cas Amadeus, effort et calendrier : [Amadeus – One year fully open systems](https://amadeus.com/en/blog/articles/celebrating-one-year-fully-open-systems) et [Amadeus – Rapport global 2017](https://amadeus.com/content/dam/amadeus/corporate/documents/en/resources/corporate-information/corporate-documents/global-reports/2017/9-technology-and-innovation.pdf)
-- Expérimentation randomisée 4 867 développeurs : [SSRN – paper 4945566](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4945566)
-- Essais METR : [METR – Uplift update, février 2026](https://metr.org/blog/2026-02-24-uplift-update/) et [METR – Early 2025 study](https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/)
-- Spec-driven development, état du mouvement : [sdd.sh – SDD Is Eating Software Engineering](https://sdd.sh/2026/04/sdd-is-eating-software-engineering-the-methodology-that-went-from-blog-post-to-industry-movement/), [étude de terrain sur les frameworks SDD](https://github.com/ianhxu/agentic-engineering-field-study/blob/main/04-spec-driven-development.md) et [Itential – From Vibes to Specs](https://www.itential.com/resource/blog/vibes-to-specs-development/)
-- Chaînes agentiques de migration : [AWS – Tackling large mainframe portfolios](https://aws.amazon.com/blogs/migration-and-modernization/tackling-large-mainframe-portfolio-with-agentic-ai-and-aws-transform/), [Google Cloud – Mainframe migration and modernization with AI](https://cloud.google.com/blog/products/infrastructure-modernization/mainframe-migration-and-modernization-with-ai) et [AWS – Reimagining mainframe applications](https://aws.amazon.com/blogs/migration-and-modernization/reimagining-mainframe-applications-with-aws-transform-and-claude-code/)
-- Panorama des outils de modernisation : [Pixelmatters – Best application modernization software 2026](https://www.pixelmatters.com/insights/application-modernization-software)
-- Pattern strangler fig : [Moweb – Legacy System Modernisation with AI](https://www.moweb.com/blog/legacy-system-modernisation-ai-enterprise-upgrade) et [SnowmanLabs – AI-Powered Legacy Modernization](https://snowmanlabs.com/insights/ai-powered-legacy-modernization)
+### Productivité et migration
 
-### Prix GPU et matériel
-- Tarifs Scaleway GPU : [Scaleway – GPU pricing](https://www.scaleway.com/en/pricing/gpu/)
-- H100 chez Scaleway et OVHcloud : [Qovery – GPU pricing comparison](https://www.qovery.com/blog/gpu-pricing-comparison-method-aws-gcp-azure-scaleway-2026), [GPU Finder – Scaleway](https://gpufinder.dev/providers/scaleway) et [OVHcloud – AI offer](https://corporate.ovhcloud.com/en/newsroom/news/ai-offer/)
-- Comparateurs de marché : [computeprices.com – Scaleway](https://computeprices.com/providers/scaleway) et [GPU Cloud HQ – Alternatives](https://gpucloudhq.com/alternatives)
-- Nœud 8x H100 : [GPU Finder – 8x H100](https://gpufinder.dev/gpu/h100/8x)
-- Serveur Cloud Temple 2x H100 en SecNumCloud : [Pipook – Cloud Temple](https://pipook.fr/outil/cloud-temple/) et [Cloud Temple – Tarifs publics](https://www.cloud-temple.com/nos-tarifs-publics/)
-- Prix d'achat des cartes RTX PRO 6000 Blackwell : [Idealo](https://www.idealo.fr/prix/207353877/nvidia-rtx-pro-6000-blackwell-server-edition.html), [Sabre PC](https://www.sabrepc.com/900-2G153-0000-000-NVIDIA-S8845543) et serveurs complets : [Blackwell Cloud](https://www.blackwellcloud.com/nvidia-rtx-pro-6000-gpu-servers)
-- Prix des serveurs H100 : [Mercatus AI – H100 price](https://www.mercatus-ai.com/blog/h100-server-price), [CloudZero – H100 GPU cost](https://www.cloudzero.com/blog/h100-gpu-cost/)
-- TCO on-premise : [AI Intel Report – On-Premise AI Cost & TCO](https://aiintelreport.com/enterprise-ai/on-premise-ai-cost-tco) et électricité petite config : [LocalIA – Combien coûte un serveur IA pour PME](https://getlocalia.com/blog/combien-coute-serveur-ia-pme-2026)
-- Comparaison location et achat : [GPUNEX – Rent vs buy GPU server](https://www.gpunex.com/fr/blog/rent-vs-buy-gpu-server/)
+- Cui et al. : [trois expérimentations sur l'assistance au code, SSRN 4945566](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4945566).
+- METR : [actualisation du 24 février 2026 et limites de mesure](https://metr.org/blog/2026-02-24-uplift-update/).
+- AWS : [description de Transform sur des portefeuilles mainframe](https://aws.amazon.com/blogs/migration-and-modernization/tackling-large-mainframe-portfolio-with-agentic-ai-and-aws-transform/).
+- Google Cloud : [description de modernisation mainframe et Dual Run](https://cloud.google.com/blog/products/infrastructure-modernization/mainframe-migration-and-modernization-with-ai).
+- Amadeus : [rétrospective de la migration vers les systèmes ouverts](https://amadeus.com/en/blog/articles/celebrating-one-year-fully-open-systems).

@@ -1,6 +1,7 @@
 # Le futur du Product Management à l'ère des agents IA
 
-Version 1.0, octobre 2026
+Date de génération de cette version : 21 octobre 2026  
+Statut : Brouillon pour étude
 
 Ce document rassemble une vue aussi complète que possible de ce que les agents IA changent pour le Product Management de produits logiciels, dans un contexte européen. Il est publié pour être repris, discuté et corrigé. Le corps suit un raisonnement en huit parties et une conclusion ; les annexes A à I rassemblent les notions, les états de l'art, les grilles et les sources qui le soutiennent.
 
